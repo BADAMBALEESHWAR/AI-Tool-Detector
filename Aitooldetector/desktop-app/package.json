@@ -1,0 +1,99 @@
+{
+  "name": "ai-monitor-desktop",
+  "version": "1.0.0",
+  "description": "AI Tool Monitor Desktop Application for Educational Institutions",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "typecheck": "tsc --build tsconfig.json",
+    "preview": "electron-vite preview",
+    "dist:win": "npm run typecheck && npm run build && electron-builder --win",
+    "dist:mac": "npm run typecheck && npm run build && electron-builder --mac",
+    "dist:all": "npm run typecheck && npm run build && electron-builder --win --mac"
+  },
+  "dependencies": {
+    "active-win": "^8.1.0",
+    "axios": "^1.7.2",
+    "bcryptjs": "^2.4.3",
+    "electron-store": "^8.2.0",
+    "lucide-react": "^1.40.0",
+    "ps-list": "^8.1.1",
+    "socket.io-client": "^4.7.5",
+    "uuid": "^11.0.0"
+  },
+  "devDependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^10.0.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "electron": "^31.1.0",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.4.5",
+    "vite": "^5.3.3"
+  },
+  "build": {
+    "appId": "edu.institution.aimonitor",
+    "productName": "AI Monitor",
+    "copyright": "Copyright 2024 Educational Institution",
+    "icon": "resources/icon",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "src/data/**/*",
+      "resources/**/*"
+    ],
+    "asarUnpack": [
+      "**/node_modules/active-win/**/*",
+      "**/node_modules/ps-list/**/*",
+      "resources/bin/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "resources/icon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "resources/icon.icns",
+      "category": "public.app-category.education",
+      "hardenedRuntime": true
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "runAfterFinish": true,
+      "installerIcon": "resources/icon.ico",
+      "shortcutName": "AI Monitor"
+    },
+    "extraResources": [
+      {
+        "from": "src/data/",
+        "to": "data/"
+      }
+    ]
+  }
+}

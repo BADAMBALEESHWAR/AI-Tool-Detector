@@ -1,0 +1,402 @@
+{
+  "version": "2.4.0",
+  "updatedAt": "2026-08-31T15:00:00Z",
+  "tools": [
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "type": "WEB",
+      "domains": ["chatgpt.com", "chat.openai.com", "openai.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["ChatGPT", "OpenAI", "chatgpt.com", "chat.openai.com", "New chat - ChatGPT"]
+    },
+    {
+      "id": "gemini",
+      "name": "Google Gemini",
+      "type": "WEB",
+      "domains": [
+        "gemini.google.com",
+        "bard.google.com"
+      ],
+      "processNames": [],
+      "windowTitleKeywords": [
+        "Google Gemini",
+        "Gemini",
+        "Gemini in Chrome",
+        "Gemini (Side Panel)",
+        "Close Gemini in Chrome",
+        "Initial Greeting and Support Offer",
+        "Show thinking",
+        "Google Bard",
+        "gemini.google.com",
+        "bard.google.com",
+        "Conversations - Gemini"
+      ]
+    },
+    {
+      "id": "claude",
+      "name": "Claude",
+      "type": "WEB",
+      "domains": ["claude.ai", "anthropic.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Claude", "Anthropic Claude", "claude.ai", "Claude 3", "Claude 3.5", "New chat - Claude"]
+    },
+    {
+      "id": "copilot",
+      "name": "Microsoft Copilot",
+      "type": "WEB",
+      "domains": ["copilot.microsoft.com", "bing.com/chat", "bing.com/copilot", "edgeservices.bing.com", "sydney.bing.com"],
+      "processNames": [],
+      "windowTitleKeywords": [
+        "Microsoft Copilot",
+        "Edge Copilot",
+        "Copilot",
+        "Bing Chat",
+        "Bing Copilot",
+        "copilot.microsoft.com",
+        "Copilot in Windows"
+      ]
+    },
+    {
+      "id": "github-copilot",
+      "name": "GitHub Copilot",
+      "type": "WEB",
+      "domains": ["github.com/copilot", "copilot.github.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["GitHub Copilot", "Copilot Chat", "copilot.github.com", "github.com/copilot"]
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity AI",
+      "type": "WEB",
+      "domains": ["perplexity.ai", "www.perplexity.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["Perplexity AI", "Perplexity", "perplexity.ai", "Ask Anything - Perplexity"]
+    },
+    {
+      "id": "deepseek",
+      "name": "DeepSeek",
+      "type": "WEB",
+      "domains": ["deepseek.com", "chat.deepseek.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["DeepSeek Chat", "DeepSeek", "chat.deepseek.com", "deepseek.com", "DeepSeek - Into the Unknown"]
+    },
+    {
+      "id": "grok",
+      "name": "Grok",
+      "type": "WEB",
+      "domains": ["grok.com", "x.com/grok", "grok.x.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["xAI Grok", "Grok", "grok.com", "grok.x.ai"]
+    },
+    {
+      "id": "replit",
+      "name": "Replit",
+      "type": "WEB",
+      "domains": ["replit.com", "replit.dev", "repl.it"],
+      "processNames": [],
+      "windowTitleKeywords": ["Replit Agent", "Replit", "replit.com", "repl.it", "replit.dev"]
+    },
+    {
+      "id": "mistral",
+      "name": "Mistral Le Chat",
+      "type": "WEB",
+      "domains": ["chat.mistral.ai", "mistral.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["Mistral Le Chat", "Mistral AI", "chat.mistral.ai", "mistral.ai"]
+    },
+    {
+      "id": "poe",
+      "name": "Poe",
+      "type": "WEB",
+      "domains": ["poe.com", "www.poe.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Poe AI", "Poe - Fast, Helpful AI Chat", "poe.com", "Poe"]
+    },
+    {
+      "id": "character-ai",
+      "name": "Character.AI",
+      "type": "WEB",
+      "domains": ["character.ai", "c.ai", "beta.character.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["Character.AI", "Character AI", "character.ai", "c.ai"]
+    },
+    {
+      "id": "huggingface",
+      "name": "HuggingFace Chat",
+      "type": "WEB",
+      "domains": ["huggingface.co", "huggingface.co/chat"],
+      "processNames": [],
+      "windowTitleKeywords": ["HuggingFace Chat", "HuggingChat", "Hugging Face", "huggingface.co"]
+    },
+    {
+      "id": "aistudio",
+      "name": "Google AI Studio",
+      "type": "WEB",
+      "domains": ["aistudio.google.com", "makersuite.google.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Google AI Studio", "AI Studio", "MakerSuite", "aistudio.google.com"]
+    },
+    {
+      "id": "notebooklm",
+      "name": "Google NotebookLM",
+      "type": "WEB",
+      "domains": ["notebooklm.google.com", "notebooklm.google"],
+      "processNames": [],
+      "windowTitleKeywords": ["Google NotebookLM", "NotebookLM", "notebooklm.google.com"]
+    },
+    {
+      "id": "bolt",
+      "name": "Bolt.new",
+      "type": "WEB",
+      "domains": ["bolt.new", "bolt.diy", "stackblitz.com/bolt"],
+      "processNames": [],
+      "windowTitleKeywords": ["Bolt.new", "Bolt AI", "Bolt AI builder", "Bolt", "bolt.new", "bolt.diy"]
+    },
+    {
+      "id": "lovable",
+      "name": "Lovable",
+      "type": "WEB",
+      "domains": ["lovable.dev", "lovable.app"],
+      "processNames": [],
+      "windowTitleKeywords": ["Lovable AI", "Lovable", "lovable.dev", "lovable.app"]
+    },
+    {
+      "id": "blackbox",
+      "name": "Blackbox AI",
+      "type": "WEB",
+      "domains": ["blackbox.ai", "www.blackbox.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["Blackbox AI", "BLACKBOX AI", "blackbox.ai"]
+    },
+    {
+      "id": "phind",
+      "name": "Phind",
+      "type": "WEB",
+      "domains": ["phind.com", "www.phind.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Phind: AI search engine", "Phind", "phind.com"]
+    },
+    {
+      "id": "v0",
+      "name": "v0 by Vercel",
+      "type": "WEB",
+      "domains": ["v0.dev", "v0.app"],
+      "processNames": [],
+      "windowTitleKeywords": ["v0 by Vercel", "v0: Generative UI", "v0.dev", "v0.app", "v0 App"]
+    },
+    {
+      "id": "midjourney",
+      "name": "Midjourney",
+      "type": "WEB",
+      "domains": ["midjourney.com", "alpha.midjourney.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Midjourney", "midjourney.com"]
+    },
+    {
+      "id": "youcom",
+      "name": "You.com",
+      "type": "WEB",
+      "domains": ["you.com", "www.you.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["You.com", "you.com"]
+    },
+    {
+      "id": "pi",
+      "name": "Pi AI",
+      "type": "WEB",
+      "domains": ["pi.ai", "heypi.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Pi, your personal AI", "Inflection Pi", "Pi AI", "pi.ai", "heypi.com"]
+    },
+    {
+      "id": "meta-ai",
+      "name": "Meta AI",
+      "type": "WEB",
+      "domains": ["meta.ai", "ai.meta.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Meta AI", "meta.ai", "ai.meta.com"]
+    },
+    {
+      "id": "kimi",
+      "name": "Kimi",
+      "type": "WEB",
+      "domains": ["kimi.ai", "kimi.moonshot.cn"],
+      "processNames": [],
+      "windowTitleKeywords": ["Moonshot Kimi", "Kimi AI", "kimi.ai", "kimi.moonshot.cn"]
+    },
+    {
+      "id": "cohere",
+      "name": "Cohere Coral",
+      "type": "WEB",
+      "domains": ["coral.cohere.com", "cohere.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Cohere Coral", "Cohere AI", "coral.cohere.com", "cohere.com"]
+    },
+    {
+      "id": "jasper",
+      "name": "Jasper AI",
+      "type": "WEB",
+      "domains": ["jasper.ai", "app.jasper.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["Jasper AI", "jasper.ai", "app.jasper.ai"]
+    },
+    {
+      "id": "writesonic",
+      "name": "Writesonic",
+      "type": "WEB",
+      "domains": ["writesonic.com", "app.writesonic.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Writesonic", "Chatsonic", "writesonic.com", "app.writesonic.com"]
+    },
+    {
+      "id": "copyai",
+      "name": "Copy.ai",
+      "type": "WEB",
+      "domains": ["copy.ai", "app.copy.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["Copy.ai", "Copy AI", "copy.ai", "app.copy.ai"]
+    },
+    {
+      "id": "qwen",
+      "name": "Qwen",
+      "type": "WEB",
+      "domains": ["chat.qwenlm.ai", "qwen.ai", "tongyi.aliyun.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Tongyi Qianwen", "Alibaba Qwen", "Qwen", "chat.qwenlm.ai", "qwen.ai"]
+    },
+    {
+      "id": "elevenlabs",
+      "name": "ElevenLabs",
+      "type": "WEB",
+      "domains": ["elevenlabs.io", "beta.elevenlabs.io"],
+      "processNames": [],
+      "windowTitleKeywords": ["ElevenLabs", "elevenlabs.io", "Eleven Labs AI"]
+    },
+    {
+      "id": "suno",
+      "name": "Suno AI",
+      "type": "WEB",
+      "domains": ["suno.com", "suno.ai", "app.suno.ai"],
+      "processNames": [],
+      "windowTitleKeywords": ["Suno AI", "Suno - AI Music", "suno.com", "suno.ai", "app.suno.ai"]
+    },
+    {
+      "id": "udio",
+      "name": "Udio",
+      "type": "WEB",
+      "domains": ["udio.com", "www.udio.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["Udio | AI Music", "Udio AI", "udio.com"]
+    },
+    {
+      "id": "runway",
+      "name": "Runway",
+      "type": "WEB",
+      "domains": ["runwayml.com", "app.runwayml.com", "runway.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["RunwayML", "Runway AI", "Gen-2", "Gen-3", "runwayml.com", "runway.com"]
+    },
+    {
+      "id": "gamma",
+      "name": "Gamma App",
+      "type": "WEB",
+      "domains": ["gamma.app", "www.gamma.app"],
+      "processNames": [],
+      "windowTitleKeywords": ["Gamma App", "Gamma AI", "gamma.app"]
+    },
+    {
+      "id": "chatpdf",
+      "name": "ChatPDF",
+      "type": "WEB",
+      "domains": ["chatpdf.com", "www.chatpdf.com"],
+      "processNames": [],
+      "windowTitleKeywords": ["ChatPDF", "chatpdf.com"]
+    },
+    {
+      "id": "notion-ai",
+      "name": "Notion AI",
+      "type": "WEB",
+      "domains": ["notion.so", "www.notion.so"],
+      "processNames": [],
+      "windowTitleKeywords": ["Notion AI", "notion.so"]
+    },
+    {
+      "id": "chatgpt-desktop",
+      "name": "ChatGPT Desktop",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["ChatGPT.exe", "ChatGPT", "ChatGPT.app"],
+      "windowTitleKeywords": ["ChatGPT Desktop", "ChatGPT"]
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor AI",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["Cursor.exe", "Cursor", "Cursor.app", "cursor"],
+      "windowTitleKeywords": ["Cursor AI", "Cursor"]
+    },
+    {
+      "id": "windsurf",
+      "name": "Windsurf",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["windsurf.exe", "Windsurf", "Windsurf.app", "codeium"],
+      "windowTitleKeywords": ["Windsurf", "Codeium"]
+    },
+    {
+      "id": "antigravity",
+      "name": "Antigravity IDE",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["Antigravity IDE.exe", "Antigravity.exe", "antigravity-ide.exe", "antigravity.exe", "Antigravity IDE", "Antigravity"],
+      "windowTitleKeywords": ["Antigravity IDE", "Antigravity"]
+    },
+    {
+      "id": "ollama",
+      "name": "Ollama",
+      "type": "APP",
+      "domains": ["localhost:11434"],
+      "processNames": ["ollama.exe", "ollama", "Ollama.app", "ollama_app.exe"],
+      "windowTitleKeywords": ["Ollama", "ollama"]
+    },
+    {
+      "id": "lmstudio",
+      "name": "LM Studio",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["LM Studio.exe", "LM Studio", "lmstudio", "lm-studio.exe", "LM Studio.app"],
+      "windowTitleKeywords": ["LM Studio", "lmstudio"]
+    },
+    {
+      "id": "claude-desktop",
+      "name": "Claude Desktop",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["Claude.exe", "Claude", "Claude.app"],
+      "windowTitleKeywords": ["Claude Desktop", "Claude"]
+    },
+    {
+      "id": "deepseek-desktop",
+      "name": "DeepSeek Desktop",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["DeepSeek.exe", "DeepSeek", "deepseek", "DeepSeek.app"],
+      "windowTitleKeywords": ["DeepSeek Desktop", "DeepSeek Chat", "DeepSeek"]
+    },
+    {
+      "id": "jan-ai",
+      "name": "Jan AI",
+      "type": "APP",
+      "domains": [],
+      "processNames": ["jan.exe", "Jan.exe", "Jan", "jan", "jan.app"],
+      "windowTitleKeywords": ["Jan AI", "Jan", "jan.ai"]
+    }
+  ],
+  "heuristicPatterns": {
+    "domainKeywords": ["chatgpt", "gemini", "claude", "copilot", "perplexity", "deepseek", "grok", "mistral", "aistudio", "notebooklm", "elevenlabs", "suno", "udio", "runway", "lovable", "bolt.new"],
+    "titleKeywords": ["AI Chat", "AI Assistant", "AI Copilot", "Generative AI", "LLM Chat", "AI Studio", "AI Workspace"],
+    "processKeywords": ["chatgpt", "cursor", "windsurf", "antigravity", "ollama", "lmstudio", "jan"]
+  }
+}

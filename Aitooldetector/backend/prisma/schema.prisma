@@ -1,0 +1,189 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ADMIN
+// ─────────────────────────────────────────────
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  role         String   @default("admin") // admin | superadmin
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("admin_users")
+}
+
+// ─────────────────────────────────────────────
+// STUDENT MASTER LIST (admin-uploaded CSV)
+// ─────────────────────────────────────────────
+
+model StudentMasterEntry {
+  id        String   @id @default(uuid())
+  sapId     String   @unique @map("sap_id")
+  name      String
+  branch    String
+  uploadedAt DateTime @default(now()) @map("uploaded_at")
+
+  @@map("student_master_entries")
+}
+
+// ─────────────────────────────────────────────
+// STUDENTS (registered accounts)
+// ─────────────────────────────────────────────
+
+enum StudentStatus {
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+model Student {
+  id           String        @id @default(uuid())
+  sapId        String        @unique @map("sap_id")
+  name         String
+  branch       String
+  email        String?       @unique
+  passwordHash String        @map("password_hash")
+  status       StudentStatus @default(ACTIVE)
+  registeredAt DateTime      @default(now()) @map("registered_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+
+  devices      Device[]
+  usageEvents  UsageEvent[]
+
+  @@map("students")
+}
+
+// ─────────────────────────────────────────────
+// DEVICES
+// ─────────────────────────────────────────────
+
+enum DeviceOS {
+  WINDOWS
+  MACOS
+  LINUX
+  UNKNOWN
+}
+
+enum DeviceStatus {
+  ACTIVE
+  INACTIVE
+  DEACTIVATED
+}
+
+model Device {
+  id              String       @id @default(uuid())
+  studentId       String       @map("student_id")
+  osType          DeviceOS     @default(UNKNOWN) @map("os_type")
+  hostname        String
+  appVersion      String?      @map("app_version")
+  extensionStatus Boolean      @default(false) @map("extension_status")
+  deviceTokenHash String       @map("device_token_hash") // hashed token stored server-side
+  status          DeviceStatus @default(ACTIVE)
+  activatedAt     DateTime     @default(now()) @map("activated_at")
+  lastSeen        DateTime     @default(now()) @map("last_seen")
+  createdAt       DateTime     @default(now()) @map("created_at")
+
+  student      Student      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  usageEvents  UsageEvent[]
+
+  @@unique([studentId, hostname])
+  @@map("devices")
+}
+
+// ─────────────────────────────────────────────
+// AI TOOL SIGNATURES
+// ─────────────────────────────────────────────
+
+enum ToolType {
+  WEB
+  APP
+  UNKNOWN
+}
+
+enum ToolStatus {
+  BUILT_IN   // shipped with app
+  APPROVED   // admin-approved new tool
+  PENDING    // flagged, awaiting admin review
+  REJECTED   // admin rejected
+}
+
+model AIToolSignature {
+  id          String     @id @default(uuid())
+  name        String
+  type        ToolType   @default(WEB)
+  pattern     String     // domain (e.g. chatgpt.com) or process name (e.g. ChatGPT.exe)
+  aliases     String[]   @default([]) // additional patterns/subdomains
+  keywords    String[]   @default([]) // window title keywords for matching
+  description String?
+  iconUrl     String?    @map("icon_url")
+  status      ToolStatus @default(BUILT_IN)
+  addedBy     String     @default("system") @map("added_by") // system | admin | auto_detected
+  reportCount Int        @default(0) @map("report_count")  // how many devices flagged this
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  usageEvents UsageEvent[]
+
+  @@map("ai_tool_signatures")
+}
+
+// ─────────────────────────────────────────────
+// USAGE EVENTS
+// ─────────────────────────────────────────────
+
+enum UsageSource {
+  DESKTOP_APP
+  BROWSER_EXTENSION
+}
+
+model UsageEvent {
+  id              String      @id @default(uuid())
+  studentId       String      @map("student_id")
+  deviceId        String      @map("device_id")
+  toolId          String?     @map("tool_id") // null if unknown tool
+  toolName        String      @map("tool_name") // denormalized for easy display
+  source          UsageSource
+  startTime       DateTime    @map("start_time")
+  endTime         DateTime?   @map("end_time")
+  durationSeconds Int?        @map("duration_seconds")
+  rawIdentifier   String?     @map("raw_identifier") // URL or window title
+  browserName     String?     @map("browser_name")
+  isUnknownTool   Boolean     @default(false) @map("is_unknown_tool")
+  createdAt       DateTime    @default(now()) @map("created_at")
+
+  student Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  device  Device           @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  tool    AIToolSignature? @relation(fields: [toolId], references: [id], onDelete: SetNull)
+
+  @@index([studentId])
+  @@index([toolId])
+  @@index([startTime])
+  @@index([source])
+  @@map("usage_events")
+}
+
+// ─────────────────────────────────────────────
+// APP SETTINGS (global, admin-managed)
+// ─────────────────────────────────────────────
+
+model AppSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("app_settings")
+}

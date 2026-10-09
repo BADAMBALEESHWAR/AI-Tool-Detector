@@ -1,0 +1,42 @@
+﻿# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local database files
+*.sqlite
+*.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Desktop application build artifacts
+Aitooldetector/desktop-app/release/
+Aitooldetector/desktop-app/scratch/
+
+# Runtime uploads
+Aitooldetector/backend/uploads/
+
+# Local development and database test scripts
+Aitooldetector/backend/scratch/
+
+# Generated Electron build output
+Aitooldetector/desktop-app/out/
+Aitooldetector/desktop-app/dist-types/
+
+# Large downloadable installer packages
+Aitooldetector/backend/downloads/*.exe
+Aitooldetector/backend/downloads/*.zip
