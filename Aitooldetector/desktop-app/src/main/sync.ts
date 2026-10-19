@@ -4,7 +4,7 @@ import { io, Socket } from 'socket.io-client';
 import { logger } from './logger';
 import { loadToolsDB, saveToolsDB, isInvalidOrBlacklistedTool } from './toolsDB';
 
-const API_BASE = process.env.BACKEND_URL || 'http://localhost:3001/api';
+const API_BASE = 'https://api.tooldetect.in/api';
 const SOCKET_URL = API_BASE.replace(/\/api\/?$/, '');
 
 let syncInterval: ReturnType<typeof setInterval> | null = null;

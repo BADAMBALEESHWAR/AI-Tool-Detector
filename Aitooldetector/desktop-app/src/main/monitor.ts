@@ -9,7 +9,7 @@ import { BrowserWindow, Notification, app } from 'electron';
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-const API_BASE = process.env.BACKEND_URL || 'http://localhost:3001/api';
+const API_BASE = 'https://api.tooldetect.in/api';
 
 let monitorInterval: ReturnType<typeof setInterval> | null = null;
 let isRunning = false;

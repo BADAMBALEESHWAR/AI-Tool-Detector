@@ -5,7 +5,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { logger } from './logger';
 
-const API_BASE = process.env.BACKEND_URL || 'http://localhost:3001/api';
+const API_BASE = 'https://api.tooldetect.in/api';
 let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
 
 const HEARTBEAT_INTERVAL_MS = 60_000; // 60 seconds

@@ -7,7 +7,7 @@ import os from 'os';
 import { logger } from './logger';
 import { getActiveToolsSnapshot, clearRecentSessions } from './monitor';
 
-const API_BASE = process.env.BACKEND_URL || 'http://localhost:3001/api';
+const API_BASE = 'https://api.tooldetect.in/api';
 
 interface SignInResult {
   studentInfo: { sapId: string; name: string; branch: string };
