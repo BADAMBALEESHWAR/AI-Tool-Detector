@@ -35,6 +35,23 @@ function extractBrowserName(browserName?: string, rawIdentifier?: string, toolTy
   return 'Web Browser';
 }
 
+/**
+ * Links an event to a catalog tool: by database id first, then by name. Clients
+ * running the bundled offline catalog send slug ids (e.g. "chatgpt"), so an
+ * unknown id falls back to the name instead of dropping the link.
+ */
+async function resolveTool(toolId?: string, toolName?: string): Promise<{ id: string | null; type?: string }> {
+  if (toolId) {
+    const byId = await prisma.aIToolSignature.findUnique({ where: { id: toolId } }).catch(() => null);
+    if (byId) return { id: byId.id, type: byId.type };
+  }
+  if (toolName) {
+    const byName = await prisma.aIToolSignature.findFirst({ where: { name: { equals: toolName, mode: 'insensitive' } } });
+    if (byName) return { id: byName.id, type: byName.type };
+  }
+  return { id: null };
+}
+
 // All usage event submission requires student auth
 // POST /api/usage/event — ingest a usage event from desktop app or browser extension
 usageRouter.post(
@@ -143,23 +160,7 @@ usageRouter.post(
       });
 
       // If toolId provided, validate it exists
-      let resolvedToolId = toolId || null;
-      let toolType: string | undefined;
-      if (toolId) {
-        const tool = await prisma.aIToolSignature.findUnique({ where: { id: toolId } });
-        if (tool) {
-          resolvedToolId = tool.id;
-          toolType = tool.type;
-        } else {
-          resolvedToolId = null;
-        }
-      } else if (toolName) {
-        const tool = await prisma.aIToolSignature.findFirst({ where: { name: { equals: toolName, mode: 'insensitive' } } });
-        if (tool) {
-          resolvedToolId = tool.id;
-          toolType = tool.type;
-        }
-      }
+      const { id: resolvedToolId, type: toolType } = await resolveTool(toolId, toolName);
 
       const resolvedBrowser = extractBrowserName(browserName, rawIdentifier, toolType);
 
@@ -192,7 +193,7 @@ usageRouter.post(
         sapId,
         branch: student?.branch || 'Unknown',
         toolName,
-        toolId: resolvedToolId,
+        toolId: resolvedToolId ?? undefined,
         source,
         deviceHostname: device.hostname,
         browserName: resolvedBrowser,
@@ -326,21 +327,7 @@ usageRouter.post('/ping', requireStudent, async (req: Request, res: Response) =>
         return;
       }
 
-      let resolvedToolId = toolId || null;
-      let toolType: string | undefined;
-      if (toolId) {
-        const tool = await prisma.aIToolSignature.findUnique({ where: { id: toolId } });
-        if (tool) {
-          resolvedToolId = tool.id;
-          toolType = tool.type;
-        }
-      } else if (toolName) {
-        const tool = await prisma.aIToolSignature.findFirst({ where: { name: { equals: toolName, mode: 'insensitive' } } });
-        if (tool) {
-          resolvedToolId = tool.id;
-          toolType = tool.type;
-        }
-      }
+      const { id: resolvedToolId, type: toolType } = await resolveTool(toolId, toolName);
 
       const resolvedBrowser = extractBrowserName(browserName, rawIdentifier, toolType);
       const sessionKey = `${sapId}:${toolName}:${resolvedBrowser}`;
@@ -353,7 +340,7 @@ usageRouter.post('/ping', requireStudent, async (req: Request, res: Response) =>
         sapId,
         branch: student?.branch || 'Unknown',
         toolName,
-        toolId: resolvedToolId,
+        toolId: resolvedToolId ?? undefined,
         source,
         deviceHostname: device.hostname,
         browserName: resolvedBrowser,
@@ -373,7 +360,7 @@ usageRouter.post('/ping', requireStudent, async (req: Request, res: Response) =>
         sapId,
         branch: student?.branch || 'Unknown',
         toolName,
-        toolId: resolvedToolId,
+        toolId: resolvedToolId ?? undefined,
         source,
         deviceHostname: device.hostname,
         browserName: resolvedBrowser,

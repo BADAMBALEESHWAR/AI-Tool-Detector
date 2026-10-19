@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
-import { BUILTIN_AI_TOOLS } from '../src/utils/aiToolsPreset';
+import { upgradeBuiltinCatalogIfNeeded } from '../src/utils/catalogSync';
 
 const prisma = new PrismaClient();
 
@@ -21,42 +21,9 @@ const DEFAULT_SETTINGS = [
 async function main() {
   console.log('🌱 Seeding database...');
 
-  // Seed AI tools
-  console.log(`  → Seeding ${BUILTIN_AI_TOOLS.length} built-in AI tool signatures...`);
-  for (const tool of BUILTIN_AI_TOOLS) {
-    const existing = await prisma.aIToolSignature.findFirst({
-      where: { pattern: tool.pattern },
-    });
-
-    if (existing) {
-      await prisma.aIToolSignature.update({
-        where: { id: existing.id },
-        data: {
-          name: tool.name,
-          type: tool.type,
-          aliases: tool.aliases,
-          keywords: tool.keywords,
-          description: tool.description,
-          status: 'BUILT_IN',
-          addedBy: 'system',
-        },
-      });
-    } else {
-      await prisma.aIToolSignature.create({
-        data: {
-          name: tool.name,
-          type: tool.type,
-          pattern: tool.pattern,
-          aliases: tool.aliases,
-          keywords: tool.keywords,
-          description: tool.description,
-          status: 'BUILT_IN',
-          addedBy: 'system',
-        },
-      });
-    }
-  }
-  console.log(`  ✅ AI tools seeded.`);
+  // Seed the built-in AI tool catalog (same code path the server uses on start-up)
+  const catalog = await upgradeBuiltinCatalogIfNeeded(prisma);
+  console.log(catalog ? `  ✅ AI catalog seeded (${catalog.upserted} tools).` : '  ℹ️  AI catalog already up to date.');
 
   // Seed default settings
   console.log(`  → Seeding default app settings...`);

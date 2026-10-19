@@ -111,6 +111,7 @@ model Device {
 enum ToolType {
   WEB
   APP
+  EMBEDDED // AI feature inside another app (e.g. Copilot pane in Word)
   UNKNOWN
 }
 

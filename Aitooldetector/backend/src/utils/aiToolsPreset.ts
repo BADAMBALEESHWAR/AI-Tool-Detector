@@ -1,386 +1,195 @@
+/**
+ * Built-in AI tool catalog — the single source of truth for detection.
+ *
+ * Synced to every desktop client via GET /api/tools and bundled into the
+ * desktop app as an offline fallback (`npm run catalog:export`). Bump
+ * AI_CATALOG_VERSION whenever an entry changes; the backend upgrades the
+ * database's built-in tools on start-up (see utils/catalogSync.ts).
+ *
+ * Only real AI products belong here: chatbots, AI apps and AI features built
+ * into other applications. General-purpose sites and apps (Notion, Replit,
+ * VS Code itself…) must never match on their own.
+ *
+ * Field meaning per type:
+ *
+ *   WEB       pattern + aliases  domains / URL prefixes (matched by the browser extension, and
+ *                                in window titles when a domain is shown)
+ *             keywords           tab-title signatures: the whole normalized title, or its first
+ *                                or last " - " segment, must equal one of these (case-insensitive)
+ *
+ *   APP       pattern + aliases  executable names (with or without .exe)
+ *             keywords           display names
+ *
+ *   EMBEDDED  pattern            unique key "embedded:<slug>"
+ *             aliases            host executables the feature lives in (e.g. Code, WINWORD)
+ *             keywords           UI markers that exist only while the AI panel is OPEN:
+ *                                  "<ControlType>=<text>"  exact name   e.g. "Pane=Copilot"
+ *                                  "<ControlType>^<text>"  name prefix  e.g. "Edit^Chat Input"
+ *                                ControlType is a UI Automation type (Pane, Group, Button,
+ *                                Document, Edit…) or "Window" for the top-level window title.
+ *                                Markers are matched in-process by the desktop scanner; only the
+ *                                matched rule id is reported — never any on-screen text.
+ *
+ * "verified" in a description means the marker was confirmed on a real
+ * Windows machine; "best-effort" markers follow the vendor's documented UI
+ * and simply never match if the vendor names the element differently.
+ */
+
+export type BuiltinToolType = 'WEB' | 'APP' | 'EMBEDDED';
+
 export interface BuiltinAITool {
   name: string;
-  type: 'WEB' | 'APP';
+  type: BuiltinToolType;
   pattern: string;
   aliases: string[];
   keywords: string[];
   description: string;
 }
 
-export const BUILTIN_AI_TOOLS: BuiltinAITool[] = [
-  // ── WEB TOOLS (Browser-based AI Assistants & Platforms) ───────────────────
-  {
-    name: 'ChatGPT',
-    type: 'WEB',
-    pattern: 'chatgpt.com',
-    aliases: ['chat.openai.com', 'openai.com'],
-    keywords: ['ChatGPT', 'OpenAI', 'chatgpt.com', 'chat.openai.com', 'New chat - ChatGPT'],
-    description: 'OpenAI ChatGPT - conversational AI assistant',
-  },
-  {
-    name: 'Google Gemini',
-    type: 'WEB',
-    pattern: 'gemini.google.com',
-    aliases: ['bard.google.com'],
-    keywords: [
-      'Google Gemini',
-      'Gemini',
-      'Gemini in Chrome',
-      'Gemini (Side Panel)',
-      'Close Gemini in Chrome',
-      'Initial Greeting and Support Offer',
-      'Show thinking',
-      'Google Bard',
-      'gemini.google.com',
-      'bard.google.com',
-      'Conversations - Gemini',
-    ],
-    description: 'Google Gemini - multimodal AI assistant by Google (Web & Chrome Side Panel)',
-  },
-  {
-    name: 'Claude',
-    type: 'WEB',
-    pattern: 'claude.ai',
-    aliases: ['anthropic.com'],
-    keywords: ['Claude', 'Anthropic Claude', 'claude.ai', 'Claude 3', 'Claude 3.5', 'New chat - Claude'],
-    description: 'Anthropic Claude - conversational and reasoning AI assistant',
-  },
-  {
-    name: 'Microsoft Copilot',
-    type: 'WEB',
-    pattern: 'copilot.microsoft.com',
-    aliases: ['bing.com/chat', 'bing.com/copilot', 'edgeservices.bing.com', 'sydney.bing.com'],
-    keywords: [
-      'Microsoft Copilot',
-      'Edge Copilot',
-      'Copilot',
-      'Bing Chat',
-      'Bing Copilot',
-      'copilot.microsoft.com',
-      'Copilot in Windows',
-    ],
-    description: 'Microsoft Copilot - AI assistant integrated into Microsoft ecosystem & Edge Sidebar',
-  },
-  {
-    name: 'GitHub Copilot',
-    type: 'WEB',
-    pattern: 'github.com/copilot',
-    aliases: ['copilot.github.com'],
-    keywords: ['GitHub Copilot', 'Copilot Chat', 'copilot.github.com', 'github.com/copilot'],
-    description: 'GitHub Copilot - AI code completion and assistant',
-  },
-  {
-    name: 'Perplexity AI',
-    type: 'WEB',
-    pattern: 'perplexity.ai',
-    aliases: ['www.perplexity.ai'],
-    keywords: ['Perplexity AI', 'Perplexity', 'perplexity.ai', 'Ask Anything - Perplexity'],
-    description: 'Perplexity AI - AI-powered conversational search engine',
-  },
-  {
-    name: 'DeepSeek',
-    type: 'WEB',
-    pattern: 'deepseek.com',
-    aliases: ['chat.deepseek.com'],
-    keywords: ['DeepSeek Chat', 'DeepSeek', 'chat.deepseek.com', 'deepseek.com', 'DeepSeek - Into the Unknown'],
-    description: 'DeepSeek - advanced open-weights reasoning & coding model',
-  },
-  {
-    name: 'Grok',
-    type: 'WEB',
-    pattern: 'grok.com',
-    aliases: ['x.com/grok', 'grok.x.ai'],
-    keywords: ['xAI Grok', 'Grok', 'grok.com', 'grok.x.ai'],
-    description: 'Grok by xAI - conversational AI with real-time X knowledge',
-  },
-  {
-    name: 'Replit',
-    type: 'WEB',
-    pattern: 'replit.com',
-    aliases: ['replit.dev', 'repl.it'],
-    keywords: ['Replit Agent', 'Replit', 'replit.com', 'repl.it', 'replit.dev'],
-    description: 'Replit - AI software development and cloud workspace with Replit Agent',
-  },
-  {
-    name: 'Mistral Le Chat',
-    type: 'WEB',
-    pattern: 'chat.mistral.ai',
-    aliases: ['mistral.ai'],
-    keywords: ['Mistral Le Chat', 'Mistral AI', 'chat.mistral.ai', 'mistral.ai'],
-    description: 'Mistral AI Le Chat - conversational AI assistant',
-  },
-  {
-    name: 'Poe',
-    type: 'WEB',
-    pattern: 'poe.com',
-    aliases: ['www.poe.com'],
-    keywords: ['Poe AI', 'Poe - Fast, Helpful AI Chat', 'poe.com', 'Poe'],
-    description: 'Poe by Quora - fast multi-bot AI chat platform',
-  },
-  {
-    name: 'Character.AI',
-    type: 'WEB',
-    pattern: 'character.ai',
-    aliases: ['c.ai', 'beta.character.ai'],
-    keywords: ['Character.AI', 'Character AI', 'character.ai', 'c.ai'],
-    description: 'Character.AI - neural language model chatbot platform',
-  },
-  {
-    name: 'HuggingFace Chat',
-    type: 'WEB',
-    pattern: 'huggingface.co',
-    aliases: ['huggingface.co/chat'],
-    keywords: ['HuggingFace Chat', 'HuggingChat', 'Hugging Face', 'huggingface.co'],
-    description: 'HuggingFace Chat - open source AI models chat interface',
-  },
-  {
-    name: 'Google AI Studio',
-    type: 'WEB',
-    pattern: 'aistudio.google.com',
-    aliases: ['makersuite.google.com'],
-    keywords: ['Google AI Studio', 'AI Studio', 'MakerSuite', 'aistudio.google.com'],
-    description: 'Google AI Studio - prototyping environment for Gemini models',
-  },
-  {
-    name: 'Google NotebookLM',
-    type: 'WEB',
-    pattern: 'notebooklm.google.com',
-    aliases: ['notebooklm.google'],
-    keywords: ['Google NotebookLM', 'NotebookLM', 'notebooklm.google.com'],
-    description: 'Google NotebookLM - personalized AI research and note-taking assistant',
-  },
-  {
-    name: 'Bolt.new',
-    type: 'WEB',
-    pattern: 'bolt.new',
-    aliases: ['bolt.diy', 'stackblitz.com/bolt'],
-    keywords: ['Bolt.new', 'Bolt AI', 'Bolt AI builder', 'Bolt', 'bolt.new', 'bolt.diy'],
-    description: 'Bolt.new - AI-powered full-stack web development in the browser',
-  },
-  {
-    name: 'Lovable',
-    type: 'WEB',
-    pattern: 'lovable.dev',
-    aliases: ['lovable.app'],
-    keywords: ['Lovable AI', 'Lovable', 'lovable.dev', 'lovable.app'],
-    description: 'Lovable - AI full-stack software engineer',
-  },
-  {
-    name: 'Blackbox AI',
-    type: 'WEB',
-    pattern: 'blackbox.ai',
-    aliases: ['www.blackbox.ai'],
-    keywords: ['Blackbox AI', 'BLACKBOX AI', 'blackbox.ai'],
-    description: 'Blackbox AI - AI coding assistant and search',
-  },
-  {
-    name: 'Phind',
-    type: 'WEB',
-    pattern: 'phind.com',
-    aliases: ['www.phind.com'],
-    keywords: ['Phind: AI search engine', 'Phind', 'phind.com'],
-    description: 'Phind - AI search engine specialized for software developers',
-  },
-  {
-    name: 'v0 by Vercel',
-    type: 'WEB',
-    pattern: 'v0.dev',
-    aliases: ['v0.app'],
-    keywords: ['v0 by Vercel', 'v0: Generative UI', 'v0.dev', 'v0.app', 'v0 App'],
-    description: 'v0 by Vercel - generative UI AI builder',
-  },
-  {
-    name: 'Midjourney',
-    type: 'WEB',
-    pattern: 'midjourney.com',
-    aliases: ['alpha.midjourney.com'],
-    keywords: ['Midjourney', 'midjourney.com'],
-    description: 'Midjourney - generative AI image platform',
-  },
-  {
-    name: 'You.com',
-    type: 'WEB',
-    pattern: 'you.com',
-    aliases: ['www.you.com'],
-    keywords: ['You.com', 'you.com'],
-    description: 'You.com - AI-powered search and chat',
-  },
-  {
-    name: 'Pi AI',
-    type: 'WEB',
-    pattern: 'pi.ai',
-    aliases: ['heypi.com'],
-    keywords: ['Pi, your personal AI', 'Inflection Pi', 'Pi AI', 'pi.ai', 'heypi.com'],
-    description: 'Pi by Inflection AI - supportive personal AI',
-  },
-  {
-    name: 'Meta AI',
-    type: 'WEB',
-    pattern: 'meta.ai',
-    aliases: ['ai.meta.com'],
-    keywords: ['Meta AI', 'meta.ai', 'ai.meta.com'],
-    description: 'Meta AI - conversational assistant powered by Llama',
-  },
-  {
-    name: 'Kimi',
-    type: 'WEB',
-    pattern: 'kimi.ai',
-    aliases: ['kimi.moonshot.cn'],
-    keywords: ['Moonshot Kimi', 'Kimi AI', 'kimi.ai', 'kimi.moonshot.cn'],
-    description: 'Kimi by Moonshot AI - long context conversational AI',
-  },
-  {
-    name: 'Cohere Coral',
-    type: 'WEB',
-    pattern: 'coral.cohere.com',
-    aliases: ['cohere.com'],
-    keywords: ['Cohere Coral', 'Cohere AI', 'coral.cohere.com', 'cohere.com'],
-    description: 'Cohere Coral - enterprise generative AI assistant',
-  },
-  {
-    name: 'Jasper AI',
-    type: 'WEB',
-    pattern: 'jasper.ai',
-    aliases: ['app.jasper.ai'],
-    keywords: ['Jasper AI', 'jasper.ai', 'app.jasper.ai'],
-    description: 'Jasper AI - AI content generation platform',
-  },
-  {
-    name: 'Writesonic',
-    type: 'WEB',
-    pattern: 'writesonic.com',
-    aliases: ['app.writesonic.com'],
-    keywords: ['Writesonic', 'Chatsonic', 'writesonic.com', 'app.writesonic.com'],
-    description: 'Writesonic - AI writing and content generation platform',
-  },
-  {
-    name: 'Copy.ai',
-    type: 'WEB',
-    pattern: 'copy.ai',
-    aliases: ['app.copy.ai'],
-    keywords: ['Copy.ai', 'Copy AI', 'copy.ai', 'app.copy.ai'],
-    description: 'Copy.ai - AI copywriting tool',
-  },
-  {
-    name: 'Qwen',
-    type: 'WEB',
-    pattern: 'chat.qwenlm.ai',
-    aliases: ['qwen.ai', 'tongyi.aliyun.com'],
-    keywords: ['Tongyi Qianwen', 'Alibaba Qwen', 'Qwen', 'chat.qwenlm.ai', 'qwen.ai'],
-    description: 'Alibaba Qwen - advanced LLM chat and reasoning assistant',
-  },
-  {
-    name: 'ElevenLabs',
-    type: 'WEB',
-    pattern: 'elevenlabs.io',
-    aliases: ['beta.elevenlabs.io'],
-    keywords: ['ElevenLabs', 'elevenlabs.io', 'Eleven Labs AI'],
-    description: 'ElevenLabs - AI voice generator and audio synthesis',
-  },
-  {
-    name: 'Suno AI',
-    type: 'WEB',
-    pattern: 'suno.com',
-    aliases: ['suno.ai', 'app.suno.ai'],
-    keywords: ['Suno AI', 'Suno - AI Music', 'suno.com', 'suno.ai', 'app.suno.ai'],
-    description: 'Suno - generative AI music creator',
-  },
-  {
-    name: 'Udio',
-    type: 'WEB',
-    pattern: 'udio.com',
-    aliases: ['www.udio.com'],
-    keywords: ['Udio | AI Music', 'Udio AI', 'udio.com'],
-    description: 'Udio - generative AI music and song generation',
-  },
-  {
-    name: 'Runway',
-    type: 'WEB',
-    pattern: 'runwayml.com',
-    aliases: ['app.runwayml.com', 'runway.com'],
-    keywords: ['RunwayML', 'Runway AI', 'Gen-2', 'Gen-3', 'runwayml.com', 'runway.com'],
-    description: 'Runway - generative AI video and creative tools',
-  },
-  {
-    name: 'Gamma App',
-    type: 'WEB',
-    pattern: 'gamma.app',
-    aliases: ['www.gamma.app'],
-    keywords: ['Gamma App', 'Gamma AI', 'gamma.app'],
-    description: 'Gamma - AI presentation, document, and webpage builder',
-  },
-  {
-    name: 'ChatPDF',
-    type: 'WEB',
-    pattern: 'chatpdf.com',
-    aliases: ['www.chatpdf.com'],
-    keywords: ['ChatPDF', 'chatpdf.com'],
-    description: 'ChatPDF - conversational AI document search and analysis',
-  },
-  {
-    name: 'Notion AI',
-    type: 'WEB',
-    pattern: 'notion.so',
-    aliases: ['www.notion.so'],
-    keywords: ['Notion AI', 'notion.so'],
-    description: 'Notion AI - AI workspace notes and docs assistant',
-  },
+export const AI_CATALOG_VERSION = 3;
 
-  // ── DESKTOP APPLICATION TOOLS (Installed Windows Applications) ────────────
-  {
-    name: 'ChatGPT Desktop',
-    type: 'APP',
-    pattern: 'ChatGPT.exe',
-    aliases: ['ChatGPT', 'ChatGPT.app'],
-    keywords: ['ChatGPT Desktop', 'ChatGPT'],
-    description: 'OpenAI ChatGPT official desktop application',
-  },
-  {
-    name: 'Cursor AI',
-    type: 'APP',
-    pattern: 'Cursor.exe',
-    aliases: ['Cursor', 'Cursor.app', 'cursor'],
-    keywords: ['Cursor AI', 'Cursor'],
-    description: 'Cursor - AI-first code editor and assistant',
-  },
-  {
-    name: 'Windsurf',
-    type: 'APP',
-    pattern: 'windsurf.exe',
-    aliases: ['Windsurf', 'Windsurf.app', 'codeium'],
-    keywords: ['Windsurf', 'Codeium'],
-    description: 'Windsurf (Codeium) - AI-powered developer IDE',
-  },
-  {
-    name: 'Antigravity IDE',
-    type: 'APP',
-    pattern: 'Antigravity IDE.exe',
-    aliases: ['Antigravity.exe', 'antigravity-ide.exe', 'antigravity.exe', 'Antigravity IDE', 'Antigravity'],
-    keywords: ['Antigravity IDE', 'Antigravity'],
-    description: 'Google Antigravity - Advanced Agentic AI Coding IDE',
-  },
-  {
-    name: 'Ollama',
-    type: 'APP',
-    pattern: 'ollama.exe',
-    aliases: ['ollama', 'Ollama.app', 'ollama_app.exe'],
-    keywords: ['Ollama', 'ollama'],
-    description: 'Ollama - run open-source LLMs locally on desktop',
-  },
-  {
-    name: 'LM Studio',
-    type: 'APP',
-    pattern: 'LM Studio.exe',
-    aliases: ['LM Studio', 'lmstudio', 'lm-studio.exe', 'LM Studio.app'],
-    keywords: ['LM Studio', 'lmstudio'],
-    description: 'LM Studio - discover, download, and run local LLMs',
-  },
-  {
-    name: 'Jan AI',
-    type: 'APP',
-    pattern: 'jan.exe',
-    aliases: ['Jan.exe', 'Jan', 'jan', 'jan.app'],
-    keywords: ['Jan AI', 'Jan', 'jan.ai'],
-    description: 'Jan AI - open-source local AI alternative to ChatGPT',
-  },
+const web = (name: string, domains: string[], titles: string[], description: string): BuiltinAITool => ({
+  name,
+  type: 'WEB',
+  pattern: domains[0],
+  aliases: domains.slice(1),
+  keywords: titles,
+  description,
+});
+
+const app = (name: string, executables: string[], description: string): BuiltinAITool => ({
+  name,
+  type: 'APP',
+  pattern: executables[0],
+  aliases: executables.slice(1),
+  keywords: [name],
+  description,
+});
+
+const embedded = (name: string, slug: string, hosts: string[], markers: string[], description: string): BuiltinAITool => ({
+  name,
+  type: 'EMBEDDED',
+  pattern: `embedded:${slug}`,
+  aliases: hosts,
+  keywords: markers,
+  description,
+});
+
+export const BUILTIN_AI_TOOLS: BuiltinAITool[] = [
+  // ── AI chatbots & assistants (web) ────────────────────────────────────────
+  web('ChatGPT', ['chatgpt.com', 'chat.openai.com'], ['ChatGPT'], 'OpenAI ChatGPT'),
+  web('Google Gemini', ['gemini.google.com', 'bard.google.com'], ['Google Gemini', 'Gemini'], 'Google Gemini'),
+  web('Claude', ['claude.ai'], ['Claude'], 'Anthropic Claude'),
+  web('Microsoft Copilot', ['copilot.microsoft.com', 'copilot.cloud.microsoft', 'bing.com/chat'], ['Microsoft Copilot', 'Copilot', 'Microsoft 365 Copilot'], 'Microsoft Copilot (consumer and Microsoft 365)'),
+  web('GitHub Copilot', ['github.com/copilot'], ['Copilot - GitHub', 'GitHub Copilot'], 'GitHub Copilot chat on github.com'),
+  web('Perplexity', ['perplexity.ai'], ['Perplexity'], 'Perplexity AI answer engine'),
+  web('DeepSeek', ['chat.deepseek.com', 'deepseek.com'], ['DeepSeek'], 'DeepSeek chat'),
+  web('Grok', ['grok.com', 'x.com/i/grok'], ['Grok'], 'xAI Grok'),
+  web('Meta AI', ['meta.ai'], ['Meta AI'], 'Meta AI assistant'),
+  web('Mistral Le Chat', ['chat.mistral.ai'], ['Le Chat', 'Le Chat - Mistral AI'], 'Mistral AI Le Chat'),
+  web('Poe', ['poe.com'], ['Poe'], 'Quora Poe multi-model chat'),
+  web('Character.AI', ['character.ai', 'c.ai'], ['Character.AI'], 'Character.AI chatbots'),
+  web('HuggingChat', ['huggingface.co/chat'], ['HuggingChat'], 'Hugging Face chat'),
+  web('Google AI Studio', ['aistudio.google.com'], ['Google AI Studio'], 'Google AI Studio (Gemini playground)'),
+  web('NotebookLM', ['notebooklm.google.com'], ['NotebookLM'], 'Google NotebookLM research assistant'),
+  web('Qwen Chat', ['chat.qwen.ai', 'chat.qwenlm.ai'], ['Qwen Chat', 'Qwen'], 'Alibaba Qwen'),
+  web('Kimi', ['kimi.com', 'kimi.ai', 'kimi.moonshot.cn'], ['Kimi'], 'Moonshot Kimi'),
+  web('Z.ai Chat', ['chat.z.ai'], ['Z.ai Chat'], 'Zhipu GLM chat'),
+  web('Pi', ['pi.ai'], ['Pi, your personal AI'], 'Inflection Pi'),
+  web('You.com', ['you.com'], ['You.com'], 'You.com AI search'),
+  web('Phind', ['phind.com'], ['Phind'], 'Phind AI search for developers'),
+  web('Blackbox AI', ['blackbox.ai'], ['BLACKBOX.AI', 'Blackbox AI'], 'Blackbox AI coding chat'),
+  web('Genspark', ['genspark.ai'], ['Genspark'], 'Genspark AI agents'),
+  web('Manus', ['manus.im'], ['Manus'], 'Manus AI agent'),
+  web('Duck.ai', ['duck.ai'], ['Duck.ai'], 'DuckDuckGo AI chat'),
+  web('LMArena', ['lmarena.ai'], ['LMArena'], 'LMArena model comparison chat'),
+
+  // ── AI study, writing & research tools (web) ──────────────────────────────
+  web('QuillBot', ['quillbot.com'], ['QuillBot', 'QuillBot AI'], 'QuillBot AI paraphraser and writer'),
+  web('Gauth', ['gauthmath.com'], ['Gauth'], 'Gauth AI homework solver'),
+  web('ChatPDF', ['chatpdf.com'], ['ChatPDF'], 'Chat with PDF documents'),
+  web('Consensus', ['consensus.app'], ['Consensus'], 'Consensus AI research search'),
+  web('Elicit', ['elicit.com'], ['Elicit'], 'Elicit AI research assistant'),
+  web('SciSpace', ['typeset.io', 'scispace.com'], ['SciSpace'], 'SciSpace AI paper reader'),
+  web('Jasper', ['jasper.ai', 'app.jasper.ai'], ['Jasper'], 'Jasper AI writer'),
+  web('Copy.ai', ['copy.ai', 'app.copy.ai'], ['Copy.ai'], 'Copy.ai writer'),
+  web('Writesonic', ['writesonic.com'], ['Writesonic', 'Chatsonic'], 'Writesonic / Chatsonic'),
+  web('Gamma', ['gamma.app'], ['Gamma'], 'Gamma AI presentations'),
+  web('Notion AI', ['notion.so/ai', 'notion.com/product/ai'], ['Notion AI'], 'Notion AI (only the Notion AI page, not Notion itself)'),
+
+  // ── AI app builders & coding (web) ────────────────────────────────────────
+  web('Bolt', ['bolt.new'], ['Bolt'], 'StackBlitz Bolt AI app builder'),
+  web('Lovable', ['lovable.dev'], ['Lovable'], 'Lovable AI app builder'),
+  web('v0', ['v0.dev', 'v0.app'], ['v0 by Vercel', 'v0'], 'Vercel v0 generative UI'),
+
+  // ── AI image, audio & video generation (web) ──────────────────────────────
+  web('Midjourney', ['midjourney.com'], ['Midjourney'], 'Midjourney image generation'),
+  web('Leonardo.Ai', ['leonardo.ai'], ['Leonardo.Ai'], 'Leonardo image generation'),
+  web('Ideogram', ['ideogram.ai'], ['Ideogram'], 'Ideogram image generation'),
+  web('ElevenLabs', ['elevenlabs.io'], ['ElevenLabs'], 'ElevenLabs AI voice'),
+  web('Suno', ['suno.com'], ['Suno'], 'Suno AI music'),
+  web('Udio', ['udio.com'], ['Udio'], 'Udio AI music'),
+  web('Runway', ['runwayml.com', 'app.runwayml.com'], ['Runway'], 'Runway AI video'),
+  web('Pika', ['pika.art'], ['Pika'], 'Pika AI video'),
+  web('Luma Dream Machine', ['lumalabs.ai/dream-machine', 'dream-machine.lumalabs.ai'], ['Dream Machine', 'Luma Dream Machine'], 'Luma AI video'),
+  web('Kling AI', ['klingai.com'], ['Kling AI'], 'Kling AI video'),
+
+  // ── AI desktop applications ───────────────────────────────────────────────
+  app('ChatGPT Desktop', ['ChatGPT.exe', 'ChatGPT'], 'OpenAI ChatGPT desktop app'),
+  app('Claude (desktop / Claude Code)', ['Claude.exe', 'Claude'], 'Anthropic Claude desktop app, or the Claude Code agent running'),
+  app('Perplexity Desktop', ['Perplexity.exe', 'Perplexity'], 'Perplexity desktop app'),
+  app('Perplexity Comet', ['comet.exe', 'Comet'], 'Perplexity Comet AI browser'),
+  app('Microsoft Copilot App', ['Copilot.exe', 'M365Copilot.exe', 'Microsoft.Copilot.exe'], 'Windows Copilot and Microsoft 365 Copilot apps'),
+  app('Cursor', ['Cursor.exe', 'Cursor'], 'Cursor AI code editor'),
+  app('Windsurf', ['Windsurf.exe', 'Windsurf'], 'Windsurf AI code editor'),
+  app('Antigravity', ['Antigravity.exe', 'Antigravity IDE.exe', 'antigravity-ide.exe'], 'Google Antigravity agentic IDE'),
+  app('Trae', ['Trae.exe', 'Trae'], 'Trae AI IDE'),
+  app('Kiro', ['Kiro.exe', 'Kiro'], 'Kiro AI IDE'),
+  app('Void', ['Void.exe'], 'Void AI code editor'),
+  app('PearAI', ['PearAI.exe'], 'PearAI code editor'),
+  app('Ollama', ['ollama app.exe', 'ollama.exe', 'ollama'], 'Ollama local LLM runtime'),
+  app('LM Studio', ['LM Studio.exe', 'lms.exe'], 'LM Studio local LLM app'),
+  app('Jan', ['Jan.exe'], 'Jan local AI assistant'),
+  app('GPT4All', ['GPT4All.exe', 'gpt4all.exe'], 'Nomic GPT4All local chat'),
+  app('Msty', ['Msty.exe', 'MstyStudio.exe'], 'Msty local and cloud AI chat'),
+  app('AnythingLLM', ['AnythingLLM.exe'], 'AnythingLLM desktop'),
+
+  // ── AI built into other applications ─────────────────────────────────────
+  embedded('Claude Code (VS Code)', 'claude-code-vscode', ['Code', 'Code - Insiders', 'VSCodium'],
+    ['Group=Claude Code conversation'],
+    'Claude Code chat panel open inside VS Code (verified)'),
+  embedded('GitHub Copilot Chat (VS Code)', 'copilot-chat-vscode', ['Code', 'Code - Insiders'],
+    ['Edit^Chat Input'],
+    'VS Code Chat / Copilot panel open (best-effort)'),
+  embedded('GitHub Copilot Chat (Visual Studio)', 'copilot-chat-visualstudio', ['devenv'],
+    ['Pane=GitHub Copilot Chat', 'Window=GitHub Copilot Chat'],
+    'Copilot Chat tool window open in Visual Studio (best-effort)'),
+  embedded('Microsoft 365 Copilot (Office)', 'm365-copilot-office', ['WINWORD', 'EXCEL', 'POWERPNT', 'OUTLOOK', 'olk', 'ONENOTE'],
+    ['Pane=Copilot'],
+    'Copilot pane open in Word, Excel, PowerPoint, Outlook or OneNote (best-effort)'),
+  embedded('Gemini in Chrome', 'gemini-in-chrome', ['chrome'],
+    ['Button=Close Gemini in Chrome'],
+    'Gemini side panel open in Google Chrome (verified toolbar button)'),
+  embedded('Copilot in Edge', 'copilot-in-edge', ['msedge'],
+    ['Document=Copilot'],
+    'Copilot sidebar open in Microsoft Edge (best-effort)'),
+  embedded('Brave Leo', 'brave-leo', ['brave'],
+    ['Document=Leo AI'],
+    'Leo AI side panel open in Brave (best-effort)'),
+  embedded('Opera Aria', 'opera-aria', ['opera', 'opera_gx'],
+    ['Document=Aria'],
+    'Aria side panel open in Opera (best-effort)'),
+  embedded('Notion AI (desktop)', 'notion-ai-desktop', ['Notion'],
+    ['Window=Notion AI'],
+    'Notion AI page open in the Notion desktop app (best-effort)'),
+  embedded('Acrobat AI Assistant', 'acrobat-ai-assistant', ['Acrobat', 'AcroRd32'],
+    ['Pane=AI Assistant'],
+    'AI Assistant pane open in Adobe Acrobat (best-effort)'),
 ];
+
+/** Parses an EMBEDDED marker ("Pane=Copilot", "Edit^Chat Input"); null when malformed. */
+export function parseMarker(marker: string): { controlType: string; op: '=' | '^'; text: string } | null {
+  const m = /^([A-Za-z]*)([=^])(.+)$/.exec(marker.trim());
+  if (!m || !m[3].trim()) return null;
+  return { controlType: m[1], op: m[2] as '=' | '^', text: m[3].trim() };
+}

@@ -264,7 +264,7 @@ adminRouter.get('/usage', async (req: Request, res: Response) => {
   }
   if (toolId) where.toolId = toolId;
   if (source) where.source = source;
-  if (appType && (appType === 'WEB' || appType === 'APP')) {
+  if (appType === 'WEB' || appType === 'APP' || appType === 'EMBEDDED') {
     where.tool = { type: appType };
   }
   if (browser && browser !== 'ALL') {
@@ -375,7 +375,7 @@ adminRouter.get('/usage/export', async (req: Request, res: Response) => {
   const where: any = {};
   if (studentId) where.studentId = studentId;
   if (toolId) where.toolId = toolId;
-  if (appType && (appType === 'WEB' || appType === 'APP')) {
+  if (appType === 'WEB' || appType === 'APP' || appType === 'EMBEDDED') {
     where.tool = { type: appType };
   }
   if (search) {
@@ -428,7 +428,9 @@ adminRouter.get('/usage/export', async (req: Request, res: Response) => {
     ];
 
     const rows = events.map(e => {
-      const appTypeStr = e.tool?.type === 'APP' || e.browserName === 'Desktop Application' ? 'Desktop App' : 'Web App';
+      const appTypeStr = e.tool?.type === 'EMBEDDED'
+        ? 'In-app AI'
+        : e.tool?.type === 'APP' || e.browserName === 'Desktop Application' ? 'Desktop App' : 'Web App';
       const browserStr = appTypeStr === 'Desktop App' ? 'N/A (Desktop)' : (e.browserName || 'Web Browser');
       const statusStr = e.endTime ? 'Completed' : 'Active / Detected';
 

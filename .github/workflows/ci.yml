@@ -11,15 +11,26 @@ concurrency:
 
 jobs:
   build:
-    name: Build ${{ matrix.app }}
+    name: ${{ matrix.app }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        app: [backend, admin-dashboard, student-dashboard]
+        include:
+          - app: backend
+            check: npx prisma generate && npm test && npm run build
+          - app: admin-dashboard
+            check: npm run build
+          - app: student-dashboard
+            check: npm run build
+          - app: desktop-app
+            check: npm run typecheck && npm test && npx electron-vite build
     defaults:
       run:
         working-directory: Aitooldetector/${{ matrix.app }}
+    env:
+      # The desktop app's tests and build do not need the Electron binary itself.
+      ELECTRON_SKIP_BINARY_DOWNLOAD: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,10 +39,7 @@ jobs:
           cache: npm
           cache-dependency-path: Aitooldetector/${{ matrix.app }}/package-lock.json
       - run: npm ci
-      - name: Generate Prisma client
-        if: matrix.app == 'backend'
-        run: npx prisma generate
-      - run: npm run build
+      - run: ${{ matrix.check }}
 
   docker:
     name: Docker image ${{ matrix.app }}

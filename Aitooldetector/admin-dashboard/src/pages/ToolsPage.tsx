@@ -4,6 +4,7 @@ import { api } from '../lib/api';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import { useActiveSessions } from '../contexts/ActiveSessionsContext';
 import toast from 'react-hot-toast';
+import { ToolTypeBadge, ToolTypeIcon } from '../components/toolType';
 import {
   Wrench, CheckCircle2, XCircle, Shield, AlertCircle, Plus, Search,
   RefreshCw, Trash2, Edit3, Globe, Monitor, Sparkles, X, Check, Zap, Bot,
@@ -14,7 +15,7 @@ import {
 interface Tool {
   id: string;
   name: string;
-  type: 'WEB' | 'APP' | 'UNKNOWN';
+  type: 'WEB' | 'APP' | 'EMBEDDED' | 'UNKNOWN';
   pattern: string;
   aliases: string[];
   keywords: string[];
@@ -33,6 +34,7 @@ interface Stats {
   rejected: number;
   webCount: number;
   appCount: number;
+  embeddedCount?: number;
 }
 
 const STATUS_TABS = ['ALL', 'ACTIVE_NOW', 'BUILT_IN', 'APPROVED', 'PENDING', 'REJECTED'] as const;
@@ -53,7 +55,7 @@ export default function ToolsPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<StatusTab>('ALL');
-  const [typeFilter, setTypeFilter] = useState<'ALL' | 'WEB' | 'APP'>('ALL');
+  const [typeFilter, setTypeFilter] = useState<'ALL' | 'WEB' | 'APP' | 'EMBEDDED'>('ALL');
   const [search, setSearch] = useState('');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [autoTrack, setAutoTrack] = useState<boolean>(true);
@@ -68,7 +70,7 @@ export default function ToolsPage() {
   const [editingTool, setEditingTool] = useState<Tool | null>(null);
   const [formData, setFormData] = useState({
     name: '',
-    type: 'WEB' as 'WEB' | 'APP',
+    type: 'WEB' as 'WEB' | 'APP' | 'EMBEDDED',
     pattern: '',
     aliases: '',
     keywords: '',
@@ -200,7 +202,7 @@ export default function ToolsPage() {
     setEditingTool(tool);
     setFormData({
       name: tool.name,
-      type: tool.type === 'APP' ? 'APP' : 'WEB',
+      type: tool.type === 'APP' || tool.type === 'EMBEDDED' ? tool.type : 'WEB',
       pattern: tool.pattern,
       aliases: (tool.aliases || []).join(', '),
       keywords: (tool.keywords || []).join(', '),
@@ -624,7 +626,7 @@ export default function ToolsPage() {
       )}
 
       {/* Metrics Banner */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
         <div className="bg-zinc-900/70 border border-white/5 p-3.5 rounded-2xl">
           <p className="text-[11px] text-zinc-500 font-medium">Total Registered</p>
           <p className="text-xl font-bold text-white mt-0.5">{stats?.total ?? tools.length}</p>
@@ -640,6 +642,12 @@ export default function ToolsPage() {
             <Monitor size={12} /> Desktop Apps
           </p>
           <p className="text-xl font-bold text-white mt-0.5">{stats?.appCount ?? tools.filter(t => t.type === 'APP').length}</p>
+        </div>
+        <div className="bg-zinc-900/70 border border-white/5 p-3.5 rounded-2xl">
+          <p className="text-[11px] text-amber-400 font-medium flex items-center gap-1">
+            <Monitor size={12} /> In-app AI
+          </p>
+          <p className="text-xl font-bold text-white mt-0.5">{stats?.embeddedCount ?? tools.filter(t => t.type === 'EMBEDDED').length}</p>
         </div>
         <div className="bg-zinc-900/70 border border-white/5 p-3.5 rounded-2xl">
           <p className="text-[11px] text-emerald-400 font-medium flex items-center gap-1">
@@ -702,6 +710,7 @@ export default function ToolsPage() {
               <option value="ALL">All Application Types</option>
               <option value="WEB">Web Applications Only</option>
               <option value="APP">Desktop Applications Only</option>
+              <option value="EMBEDDED">In-app AI Features Only</option>
             </select>
           </div>
 
@@ -762,19 +771,12 @@ export default function ToolsPage() {
               </thead>
               <tbody className="divide-y divide-white/4">
                 {filtered.map(tool => {
-                  const isApp = tool.type === 'APP';
                   return (
                     <tr key={tool.id} className="hover:bg-white/2 transition-colors">
                       {/* Name & Description */}
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2.5">
-                          <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold ${
-                            isApp
-                              ? 'bg-purple-500/15 border border-purple-500/30 text-purple-300'
-                              : 'bg-blue-500/15 border border-blue-500/30 text-blue-300'
-                          }`}>
-                            {isApp ? <Monitor size={14} /> : <Globe size={14} />}
-                          </div>
+                          <ToolTypeIcon type={tool.type} />
                           <div>
                             <div className="flex items-center gap-2">
                               <p className="font-semibold text-white text-xs">{tool.name}</p>
@@ -796,14 +798,7 @@ export default function ToolsPage() {
 
                       {/* Type Badge */}
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border text-[11px] font-medium ${
-                          isApp
-                            ? 'bg-purple-500/10 border-purple-500/25 text-purple-300'
-                            : 'bg-blue-500/10 border-blue-500/25 text-blue-300'
-                        }`}>
-                          {isApp ? <Monitor size={11} /> : <Globe size={11} />}
-                          {isApp ? 'Desktop App' : 'Web App'}
-                        </span>
+                        <ToolTypeBadge type={tool.type} />
                       </td>
 
                       {/* Pattern & Aliases */}
@@ -942,11 +937,12 @@ export default function ToolsPage() {
                   </label>
                   <select
                     value={formData.type}
-                    onChange={e => setFormData({ ...formData, type: e.target.value as 'WEB' | 'APP' })}
+                    onChange={e => setFormData({ ...formData, type: e.target.value as 'WEB' | 'APP' | 'EMBEDDED' })}
                     className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-violet-500 cursor-pointer"
                   >
                     <option value="WEB">Web App (Browser-based)</option>
                     <option value="APP">Desktop App (Windows Executable)</option>
+                    <option value="EMBEDDED">In-app AI (feature inside another app)</option>
                   </select>
                 </div>
               </div>
@@ -958,7 +954,7 @@ export default function ToolsPage() {
                 <input
                   type="text"
                   required
-                  placeholder={formData.type === 'WEB' ? 'e.g. chatgpt.com or deepseek.com' : 'e.g. ChatGPT.exe or Cursor.exe'}
+                  placeholder={formData.type === 'WEB' ? 'e.g. chatgpt.com or deepseek.com' : formData.type === 'EMBEDDED' ? 'e.g. embedded:copilot-in-teams' : 'e.g. ChatGPT.exe or Cursor.exe'}
                   value={formData.pattern}
                   onChange={e => setFormData({ ...formData, pattern: e.target.value })}
                   className="w-full bg-zinc-950 border border-white/10 rounded-xl px-3 py-2 text-xs text-white font-mono placeholder-zinc-600 focus:outline-none focus:border-violet-500"
@@ -966,7 +962,9 @@ export default function ToolsPage() {
                 <p className="text-[10px] text-zinc-500 mt-1">
                   {formData.type === 'WEB'
                     ? 'Main website domain or URL'
-                    : 'Exact Windows process executable name (e.g. ChatGPT.exe)'}
+                    : formData.type === 'EMBEDDED'
+                      ? 'Unique id starting with "embedded:". Put the host executables (e.g. WINWORD, Code) in Aliases and UI markers such as "Pane=Copilot" in Keywords.'
+                      : 'Exact Windows process executable name (e.g. ChatGPT.exe)'}
                 </p>
               </div>
 

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
+import { ToolTypeBadge } from '../components/toolType';
 import {
   List, Search, Download, ChevronLeft, ChevronRight,
-  Globe, Monitor, Clock, Laptop, CheckCircle2,
+  Clock, Laptop, CheckCircle2,
   Calendar, RotateCcw
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -18,7 +19,7 @@ interface UsageEvent {
   rawIdentifier?: string;
   student: { sapId: string; name: string; branch: string };
   device: { hostname: string; osType: string };
-  tool?: { name: string; type: 'WEB' | 'APP' | 'UNKNOWN'; pattern: string };
+  tool?: { name: string; type: 'WEB' | 'APP' | 'EMBEDDED' | 'UNKNOWN'; pattern: string };
 }
 
 function formatDuration(secs?: number) {
@@ -32,6 +33,10 @@ function formatDuration(secs?: number) {
 }
 
 function getBrowserDetails(browserName?: string, rawIdentifier?: string, toolType?: string) {
+  if (toolType === 'EMBEDDED') {
+    // In-app AI: the "browser" is the host application, e.g. Microsoft Word.
+    return { name: browserName || 'Host app', icon: '🧩', badgeCls: 'bg-amber-500/10 border-amber-500/30 text-amber-300', isBrowser: false };
+  }
   const isApp = toolType === 'APP' || browserName === 'Desktop Application';
   if (isApp) {
     return {
@@ -83,7 +88,7 @@ export default function LogsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
-  const [appTypeFilter, setAppTypeFilter] = useState<'ALL' | 'WEB' | 'APP'>('ALL');
+  const [appTypeFilter, setAppTypeFilter] = useState<'ALL' | 'WEB' | 'APP' | 'EMBEDDED'>('ALL');
   const [browserFilter, setBrowserFilter] = useState('');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -206,6 +211,7 @@ export default function LogsPage() {
               <option value="ALL">All App Types</option>
               <option value="WEB">Web App Only</option>
               <option value="APP">Desktop App Only</option>
+              <option value="EMBEDDED">In-app AI Only</option>
             </select>
           </div>
 
@@ -326,7 +332,6 @@ export default function LogsPage() {
               <tbody className="divide-y divide-white/4">
                 {events.map(ev => {
                   const isApp = ev.tool?.type === 'APP' || ev.browserName === 'Desktop Application';
-                  const appType = isApp ? 'Desktop App' : 'Web App';
                   const b = getBrowserDetails(ev.browserName, ev.rawIdentifier, ev.tool?.type);
                   const isLive = !ev.endTime && (!ev.durationSeconds || ev.durationSeconds === 0);
 
@@ -351,14 +356,7 @@ export default function LogsPage() {
 
                       {/* 3. Application Type */}
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg border text-[11px] font-medium ${
-                          isApp
-                            ? 'bg-purple-500/10 border-purple-500/25 text-purple-300'
-                            : 'bg-blue-500/10 border-blue-500/25 text-blue-300'
-                        }`}>
-                          {isApp ? <Monitor size={12} /> : <Globe size={12} />}
-                          <span>{appType}</span>
-                        </span>
+                        <ToolTypeBadge type={ev.tool?.type ?? (isApp ? 'APP' : 'WEB')} size={12} />
                       </td>
 
                       {/* 4. Browser Name */}

@@ -4,18 +4,35 @@ import { prisma } from '../utils/prisma';
 import { requireStudent, requireAdmin } from '../middleware/auth';
 import { emitPendingTool, emitToolsUpdated } from '../services/socket';
 import { logger } from '../utils/logger';
-import { BUILTIN_AI_TOOLS } from '../utils/aiToolsPreset';
+import { applyBuiltinCatalog } from '../utils/catalogSync';
 import { isBlacklistedSystemProcess } from '../utils/systemBlacklist';
 
 export const toolsRouter = Router();
 
+// Single words desktop v1 can be sent: brand names unique enough for its match-anywhere rule,
+// plus the words v1 already treats as ambiguous (it requires an exact title segment for those).
+const DISTINCTIVE_KEYWORDS = new Set([
+  'chatgpt', 'deepseek', 'notebooklm', 'huggingchat', 'chatpdf', 'quillbot', 'midjourney', 'elevenlabs',
+  'writesonic', 'chatsonic', 'genspark', 'ideogram', 'lmarena', 'phind', 'gauth', 'perplexity', 'grok',
+  'claude', 'gemini', 'copilot', 'kimi', 'poe', 'bolt', 'gamma', 'suno', 'runway', 'qwen', 'v0',
+]);
+
+/** Keyword list safe for clients that predate catalog v3 (desktop v1, browser extension). */
+export function legacyKeywords(keywords: string[]): string[] {
+  return keywords.filter(k => /\s|\./.test(k.trim()) || DISTINCTIVE_KEYWORDS.has(k.trim().toLowerCase()));
+}
+
 // ── GET /api/tools — public/student sync: returns approved + built-in tools & active settings ──
-toolsRouter.get('/', async (_req: Request, res: Response) => {
+// EMBEDDED tools are only sent to clients that understand them (?catalog=3, desktop app v2+);
+// older desktop clients and the browser extension would misread them as websites.
+toolsRouter.get('/', async (req: Request, res: Response) => {
   try {
+    const supportsEmbedded = Number(req.query.catalog) >= 3;
     const [rawTools, appSettings] = await Promise.all([
       prisma.aIToolSignature.findMany({
         where: {
           status: { in: ['BUILT_IN', 'APPROVED'] },
+          ...(supportsEmbedded ? {} : { type: { not: 'EMBEDDED' } }),
         },
         select: {
           id: true,
@@ -35,11 +52,13 @@ toolsRouter.get('/', async (_req: Request, res: Response) => {
     const settingsMap = Object.fromEntries(appSettings.map(s => [s.key, s.value]));
 
     // Guard: ensure no blacklisted system processes ever get synced to clients
-    const tools = rawTools.filter(
-      t => !isBlacklistedSystemProcess(t.pattern) &&
-           !isBlacklistedSystemProcess(t.name) &&
-           !(t.pattern === 'google.com' && t.name !== 'Google Gemini')
-    );
+    const tools = rawTools
+      .filter(
+        t => !isBlacklistedSystemProcess(t.pattern) &&
+             !isBlacklistedSystemProcess(t.name) &&
+             !(t.pattern === 'google.com' && t.name !== 'Google Gemini')
+      )
+      .map(t => (supportsEmbedded || t.type !== 'WEB' ? t : { ...t, keywords: legacyKeywords(t.keywords) }));
 
     res.json({
       tools,
@@ -61,7 +80,7 @@ toolsRouter.get('/', async (_req: Request, res: Response) => {
 // ── GET /api/tools/stats — admin statistics ──────────────────────────────────
 toolsRouter.get('/stats', requireAdmin, async (_req: Request, res: Response) => {
   try {
-    const [total, builtIn, approved, pending, rejected, webCount, appCount] = await Promise.all([
+    const [total, builtIn, approved, pending, rejected, webCount, appCount, embeddedCount] = await Promise.all([
       prisma.aIToolSignature.count(),
       prisma.aIToolSignature.count({ where: { status: 'BUILT_IN' } }),
       prisma.aIToolSignature.count({ where: { status: 'APPROVED' } }),
@@ -69,8 +88,9 @@ toolsRouter.get('/stats', requireAdmin, async (_req: Request, res: Response) => 
       prisma.aIToolSignature.count({ where: { status: 'REJECTED' } }),
       prisma.aIToolSignature.count({ where: { type: 'WEB' } }),
       prisma.aIToolSignature.count({ where: { type: 'APP' } }),
+      prisma.aIToolSignature.count({ where: { type: 'EMBEDDED' } }),
     ]);
-    res.json({ total, builtIn, approved, pending, rejected, webCount, appCount });
+    res.json({ total, builtIn, approved, pending, rejected, webCount, appCount, embeddedCount });
   } catch {
     res.status(500).json({ error: 'Failed to fetch tool stats' });
   }
@@ -127,7 +147,7 @@ toolsRouter.post(
   requireAdmin,
   [
     body('name').trim().notEmpty().withMessage('Tool name is required'),
-    body('type').isIn(['WEB', 'APP']).withMessage('Type must be WEB or APP'),
+    body('type').isIn(['WEB', 'APP', 'EMBEDDED']).withMessage('Type must be WEB, APP or EMBEDDED'),
     body('pattern').trim().notEmpty().withMessage('Primary pattern / domain / process is required'),
     body('aliases').optional().isArray(),
     body('keywords').optional().isArray(),
@@ -189,7 +209,7 @@ toolsRouter.put(
   requireAdmin,
   [
     body('name').trim().notEmpty().withMessage('Tool name is required'),
-    body('type').isIn(['WEB', 'APP']).withMessage('Type must be WEB or APP'),
+    body('type').isIn(['WEB', 'APP', 'EMBEDDED']).withMessage('Type must be WEB, APP or EMBEDDED'),
     body('pattern').trim().notEmpty().withMessage('Primary pattern is required'),
     body('aliases').optional().isArray(),
     body('keywords').optional().isArray(),
@@ -248,45 +268,10 @@ toolsRouter.put(
 // ── POST /api/tools/reset-defaults — admin restores built-in AI tools ─────────
 toolsRouter.post('/reset-defaults', requireAdmin, async (_req: Request, res: Response) => {
   try {
-    let upserted = 0;
-    for (const tool of BUILTIN_AI_TOOLS) {
-      const existing = await prisma.aIToolSignature.findFirst({
-        where: { pattern: tool.pattern },
-      });
-
-      if (existing) {
-        await prisma.aIToolSignature.update({
-          where: { id: existing.id },
-          data: {
-            name: tool.name,
-            type: tool.type,
-            aliases: tool.aliases,
-            keywords: tool.keywords,
-            description: tool.description,
-            status: 'BUILT_IN',
-            addedBy: 'system',
-          },
-        });
-      } else {
-        await prisma.aIToolSignature.create({
-          data: {
-            name: tool.name,
-            type: tool.type,
-            pattern: tool.pattern,
-            aliases: tool.aliases,
-            keywords: tool.keywords,
-            description: tool.description,
-            status: 'BUILT_IN',
-            addedBy: 'system',
-          },
-        });
-      }
-      upserted++;
-    }
-
+    const { upserted, retired } = await applyBuiltinCatalog(prisma);
     emitToolsUpdated();
-    logger.info(`Default built-in AI tools restored by admin (${upserted} tools)`);
-    res.json({ message: `Successfully restored ${upserted} built-in AI tools`, count: upserted });
+    logger.info(`Built-in AI tools restored by admin (${upserted} upserted, ${retired} retired)`);
+    res.json({ message: `Successfully restored ${upserted} built-in AI tools`, count: upserted, retired });
   } catch (err: any) {
     logger.error('Failed to reset built-in tools:', err);
     res.status(500).json({ error: 'Failed to reset defaults: ' + err.message });

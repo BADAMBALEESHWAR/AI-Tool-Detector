@@ -17,6 +17,8 @@ import { downloadsRouter } from './routes/downloads';
 import { setupSocketIO } from './services/socket';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './utils/logger';
+import { prisma } from './utils/prisma';
+import { upgradeBuiltinCatalogIfNeeded } from './utils/catalogSync';
 
 dotenv.config();
 
@@ -102,6 +104,7 @@ const PORT = parseInt(process.env.PORT || '3001', 10);
 server.listen(PORT, () => {
   logger.info(`🚀 AI Monitor Backend running on port ${PORT}`);
   logger.info(`   Environment: ${process.env.NODE_ENV || 'development'}`);
+  upgradeBuiltinCatalogIfNeeded(prisma).catch(err => logger.error('Built-in catalog upgrade failed:', err));
 });
 
 export { io };
