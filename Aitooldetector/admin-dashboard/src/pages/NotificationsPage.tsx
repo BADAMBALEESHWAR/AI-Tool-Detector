@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { acquireAdminSocket } from '../lib/socket';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import { useActiveSessions } from '../contexts/ActiveSessionsContext';
 import { api } from '../lib/api';
@@ -129,7 +129,6 @@ export default function NotificationsPage() {
   const [latestDetection, setLatestDetection] = useState<UsageNotification | null>(null);
   const [latestDeactivation, setLatestDeactivation] = useState<UsageNotification | null>(null);
   const [inspectModal, setInspectModal] = useState<UsageNotification | null>(null);
-  const socketRef = useRef<Socket | null>(null);
   const feedEndRef = useRef<HTMLDivElement>(null);
 
   // Group active sessions by Tool
@@ -258,10 +257,7 @@ export default function NotificationsPage() {
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
-      auth: { token, role: 'admin' },
-    });
-    socketRef.current = socket;
+    const socket = acquireAdminSocket(token);
 
     socket.on('connect', () => setConnected(true));
     socket.on('disconnect', () => setConnected(false));

@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useState } from 'react';
+import { acquireAdminSocket } from '../lib/socket';
 import { api } from '../lib/api';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import AddAdminCard from '../components/AddAdminCard';
@@ -24,7 +24,6 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
-  const socketRef = useRef<Socket | null>(null);
 
   const fetchSettings = () => {
     api.get('/admin/settings').then(r => setSettings({
@@ -50,10 +49,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
-      auth: { token, role: 'admin' },
-    });
-    socketRef.current = socket;
+    const socket = acquireAdminSocket(token);
 
     socket.on('connect', () => setSocketConnected(true));
     socket.on('disconnect', () => setSocketConnected(false));

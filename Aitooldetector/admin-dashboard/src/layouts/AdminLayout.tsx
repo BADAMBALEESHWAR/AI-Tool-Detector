@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
+import { acquireAdminSocket } from '../lib/socket';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import { useActiveSessions } from '../contexts/ActiveSessionsContext';
 import { api } from '../lib/api';
 import NmimsBrand from '../components/NmimsBrand';
-import { Bell, Wrench, Users, List, BarChart2, Settings, LogOut, ShieldCheck, AlertCircle, Radio, Square } from 'lucide-react';
+import { Bell, Wrench, Users, List, BarChart2, Settings, LogOut, ShieldCheck, AlertCircle, Radio, Square, Menu, X } from 'lucide-react';
 
 function fmtDur(secs?: number) {
   if (!secs || secs <= 0) return 'Just started';
@@ -20,6 +20,7 @@ export default function AdminLayout() {
   const { liveCount } = useActiveSessions();
   const navigate = useNavigate();
   const [pendingToolsCount, setPendingToolsCount] = useState<number>(0);
+  const [navOpen, setNavOpen] = useState(false);
 
   const fetchPendingCount = async () => {
     try {
@@ -39,9 +40,7 @@ export default function AdminLayout() {
   // Global socket listener for pending tools & real-time ACTIVE / DEACTIVATED notifications
   useEffect(() => {
     if (!token) return;
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
-      auth: { token, role: 'admin' },
-    });
+    const socket = acquireAdminSocket(token);
 
     socket.on('tool:pending', () => {
       fetchPendingCount();
@@ -165,15 +164,24 @@ export default function AdminLayout() {
       {/* Utility strip */}
       <div className="bg-ink text-paper/80 text-[11px]">
         <div className="flex items-center justify-between px-6 h-8">
-          <span className="tracking-wide">Shri Vile Parle Kelavani Mandal's · Narsee Monjee Institute of Management Studies</span>
+          <span className="tracking-wide truncate"><span className="hidden sm:inline">Shri Vile Parle Kelavani Mandal's · Narsee Monjee Institute of Management Studies</span><span className="sm:hidden">SVKM's NMIMS</span></span>
           <span className="hidden md:inline uppercase tracking-[0.2em] font-semibold text-paper/60">Academic Integrity Office</span>
         </div>
       </div>
 
       {/* Header */}
       <header className="sticky top-0 z-20 bg-paper border-b-4 border-nmims-600 shadow-sm">
-        <div className="flex items-center justify-between px-6 py-3">
-          <NmimsBrand subtitle="Admin Console" />
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              onClick={() => setNavOpen(o => !o)}
+              className="md:hidden p-2 -ml-2 rounded-md text-zinc-300 hover:bg-zinc-800"
+              aria-label={navOpen ? 'Close menu' : 'Open menu'}
+            >
+              {navOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <NmimsBrand subtitle="Admin Console" />
+          </div>
           <div className="flex items-center gap-4">
             <div className="hidden sm:block text-right">
               <div className="flex items-center justify-end gap-1.5">
@@ -188,21 +196,23 @@ export default function AdminLayout() {
               className="flex items-center gap-2 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-nmims-600 border border-nmims-600 rounded-md hover:bg-nmims-600 hover:text-paper transition-all cursor-pointer"
             >
               <LogOut size={12} />
-              Sign Out
+              <span className="hidden sm:inline">Sign Out</span>
             </button>
           </div>
         </div>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        {/* Sidebar */}
-        <aside className="w-60 shrink-0 flex flex-col bg-paper border-r border-zinc-700">
+      <div className="flex flex-1 min-h-0 relative">
+        {navOpen && <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setNavOpen(false)} />}
+        {/* Sidebar: drawer on phones, fixed column from md up */}
+        <aside className={`fixed md:static inset-y-0 left-0 z-40 w-64 md:w-60 shrink-0 flex flex-col bg-paper border-r border-zinc-700 transition-transform duration-200 ${navOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
           <p className="px-5 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-zinc-600">Monitoring</p>
           <nav className="flex-1 px-3 pb-3 space-y-1">
             {navItems.map(({ to, label, icon: Icon, badge }) => (
               <NavLink
                 key={to}
                 to={to}
+                onClick={() => setNavOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm font-semibold transition-all ${
                     isActive
@@ -223,7 +233,7 @@ export default function AdminLayout() {
         </aside>
 
         {/* Main */}
-        <main className="flex-1 overflow-auto">
+        <main className="flex-1 min-w-0 overflow-auto">
           <Outlet />
         </main>
       </div>

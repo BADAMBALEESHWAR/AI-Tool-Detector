@@ -115,6 +115,7 @@ export default function UsagePage() {
             <p className="text-sm">No usage events found</p>
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/5">
@@ -156,6 +157,7 @@ export default function UsagePage() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

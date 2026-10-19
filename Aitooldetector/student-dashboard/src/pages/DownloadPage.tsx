@@ -1,9 +1,9 @@
 import { useState } from 'react';
+import { API_BASE } from '../lib/config';
 import { Download, Monitor, Puzzle, CheckCircle2, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react';
 
 type OS = 'windows' | 'macos';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 // Detect OS from user agent
 function detectOS(): OS {

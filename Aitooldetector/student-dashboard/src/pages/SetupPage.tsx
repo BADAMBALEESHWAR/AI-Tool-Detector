@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { API_BASE } from '../lib/config';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
@@ -7,7 +8,6 @@ import {
   Loader2, AlertCircle, RefreshCw, ArrowRight
 } from 'lucide-react';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 function detectOS(): 'windows' | 'macos' {
   return navigator.userAgent.toLowerCase().includes('mac') ? 'macos' : 'windows';

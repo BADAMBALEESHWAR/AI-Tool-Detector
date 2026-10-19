@@ -156,6 +156,7 @@ export default function StudentsPage() {
             <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mr-2" />
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-white/5">
@@ -257,6 +258,7 @@ export default function StudentsPage() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 

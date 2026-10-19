@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { SOCKET_URL } from '../lib/config';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
@@ -35,7 +36,7 @@ export default function HomePage() {
   // Socket.io for real-time device activation updates
   useEffect(() => {
     if (!token || !student) return;
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001', {
+    const socket = io(SOCKET_URL, {
       auth: { token, role: 'student' },
     });
     socket.on('connect', () => setConnected(true));

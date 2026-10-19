@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
 import NmimsBrand from '../components/NmimsBrand';
-import { Home, Download, BarChart2, User, LogOut, ShieldCheck, AlertTriangle } from 'lucide-react';
+import { Home, Download, BarChart2, User, LogOut, ShieldCheck, AlertTriangle, Menu, X } from 'lucide-react';
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Home', icon: Home, end: true },
@@ -17,6 +17,7 @@ export default function DashboardLayout() {
   const navigate = useNavigate();
   const [activeDevice, setActiveDevice] = useState<any | null>(null);
   const [deviceChecked, setDeviceChecked] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     api.get('/student/devices').then(res => {
@@ -35,15 +36,24 @@ export default function DashboardLayout() {
       {/* Utility strip */}
       <div className="bg-ink text-paper/80 text-[11px]">
         <div className="flex items-center justify-between px-6 h-8">
-          <span className="tracking-wide">Shri Vile Parle Kelavani Mandal's · Narsee Monjee Institute of Management Studies</span>
+          <span className="tracking-wide truncate"><span className="hidden sm:inline">Shri Vile Parle Kelavani Mandal's · Narsee Monjee Institute of Management Studies</span><span className="sm:hidden">SVKM's NMIMS</span></span>
           <span className="hidden md:inline uppercase tracking-[0.2em] font-semibold text-paper/60">Student Portal</span>
         </div>
       </div>
 
       {/* Header */}
       <header className="sticky top-0 z-20 bg-paper border-b-4 border-nmims-600 shadow-sm">
-        <div className="flex items-center justify-between gap-4 px-6 py-3">
-          <NmimsBrand subtitle="Student Portal" />
+        <div className="flex items-center justify-between gap-3 px-4 sm:px-6 py-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <button
+              onClick={() => setNavOpen(o => !o)}
+              className="md:hidden p-2 -ml-2 rounded-md text-gray-300 hover:bg-gray-800"
+              aria-label={navOpen ? 'Close menu' : 'Open menu'}
+            >
+              {navOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+            <NmimsBrand subtitle="Student Portal" />
+          </div>
 
           <div className="flex items-center gap-4">
             {/* Monitoring status indicator */}
@@ -76,9 +86,10 @@ export default function DashboardLayout() {
         </div>
       </header>
 
-      <div className="flex flex-1 min-h-0">
-        {/* Sidebar */}
-        <aside className="w-60 shrink-0 flex flex-col bg-paper border-r border-gray-700">
+      <div className="flex flex-1 min-h-0 relative">
+        {navOpen && <div className="fixed inset-0 z-30 bg-black/40 md:hidden" onClick={() => setNavOpen(false)} />}
+        {/* Sidebar: drawer on phones, fixed column from md up */}
+        <aside className={`fixed md:static inset-y-0 left-0 z-40 w-64 md:w-60 shrink-0 flex flex-col bg-paper border-r border-gray-700 transition-transform duration-200 ${navOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
           <p className="px-5 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-600">My Account</p>
           <nav className="flex-1 px-3 pb-3 space-y-1">
             {NAV_LINKS.map(({ to, label, icon: Icon, end }) => (
@@ -86,6 +97,7 @@ export default function DashboardLayout() {
                 key={to}
                 to={to}
                 end={end}
+                onClick={() => setNavOpen(false)}
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-all duration-150 ${
                     isActive
@@ -118,8 +130,8 @@ export default function DashboardLayout() {
         </aside>
 
         {/* Page content */}
-        <main className="flex-1 overflow-auto">
-          <div className="p-8">
+        <main className="flex-1 min-w-0 overflow-auto">
+          <div className="p-4 sm:p-8">
             <Outlet />
           </div>
         </main>

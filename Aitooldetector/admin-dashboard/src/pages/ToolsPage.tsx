@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useState } from 'react';
+import { acquireAdminSocket } from '../lib/socket';
 import { api } from '../lib/api';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import { useActiveSessions } from '../contexts/ActiveSessionsContext';
@@ -63,7 +63,6 @@ export default function ToolsPage() {
   const [socketConnected, setSocketConnected] = useState<boolean>(false);
   const [, setRecentDetectionsCount] = useState<number>(0);
   const [highlightPendingId, setHighlightPendingId] = useState<string | null>(null);
-  const socketRef = useRef<Socket | null>(null);
 
   // Modal State for Add / Edit / Review
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,10 +127,7 @@ export default function ToolsPage() {
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
-      auth: { token, role: 'admin' },
-    });
-    socketRef.current = socket;
+    const socket = acquireAdminSocket(token);
 
     socket.on('connect', () => setSocketConnected(true));
     socket.on('disconnect', () => setSocketConnected(false));
