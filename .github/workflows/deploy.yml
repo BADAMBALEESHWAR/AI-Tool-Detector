@@ -1,9 +1,7 @@
-# Builds the three images, pushes them to Amazon ECR and rolls them out on the
-# EC2 host with docker compose. One-time AWS / GitHub setup: Aitooldetector/DEPLOYMENT.md
-#
-# Repository variables: AWS_REGION, API_URL (e.g. https://api.example.edu), optional DEPLOY_PATH
-# Repository secrets:   AWS_ROLE_ARN  (or AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY),
-#                       EC2_HOST, EC2_USER, EC2_SSH_KEY
+# Deploys to AWS (ap-south-1) on every push to main:
+#   backend    → image to Amazon ECR → EC2 (via Systems Manager, no SSH) → api.tooldetect.in
+#   dashboards → Vite build → S3 → CloudFront invalidation
+# Authenticates with GitHub OIDC (no stored AWS keys). Setup: Aitooldetector/DEPLOYMENT.md
 name: Deploy to AWS
 
 on:
@@ -19,88 +17,122 @@ permissions:
   id-token: write # OIDC role assumption
   contents: read
 
+env:
+  AWS_REGION: ap-south-1
+  AWS_ROLE_ARN: arn:aws:iam::408945531212:role/ai-tool-detector-github-deploy
+  ECR_REPOSITORY: ai-monitor-backend
+  INSTANCE_ID: i-0570f5a38a841fbec
+  API_URL: https://api.tooldetect.in
+
 jobs:
-  images:
-    name: Push ${{ matrix.image }}
-    # Skipped until the AWS variables are configured, so pushes don't fail before setup.
-    if: vars.AWS_REGION != ''
+  backend:
+    name: Deploy backend
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - app: backend
-            image: ai-monitor-backend
-          - app: admin-dashboard
-            image: ai-monitor-admin
-          - app: student-dashboard
-            image: ai-monitor-student
     steps:
       - uses: actions/checkout@v4
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ${{ vars.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
 
       - id: ecr
         uses: aws-actions/amazon-ecr-login@v2
 
       - uses: docker/setup-buildx-action@v3
 
-      - uses: docker/build-push-action@v6
+      - name: Build and push image
+        uses: docker/build-push-action@v6
         with:
-          context: Aitooldetector/${{ matrix.app }}
+          context: Aitooldetector/backend
           push: true
           tags: |
-            ${{ steps.ecr.outputs.registry }}/${{ matrix.image }}:${{ github.sha }}
-            ${{ steps.ecr.outputs.registry }}/${{ matrix.image }}:latest
-          # Only the dashboards use these; Vite bakes them into the bundle.
-          build-args: |
-            VITE_API_URL=${{ vars.API_URL }}/api
-            VITE_SOCKET_URL=${{ vars.API_URL }}
-          cache-from: type=gha,scope=${{ matrix.image }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.image }}
+            ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:latest
+          cache-from: type=gha,scope=backend-deploy
+          cache-to: type=gha,mode=max,scope=backend-deploy
 
-  deploy:
-    name: Deploy to EC2
-    needs: images
+      - name: Roll out on EC2 via Systems Manager
+        run: |
+          COMPOSE_B64=$(base64 -w0 Aitooldetector/docker-compose.prod.yml)
+          SCRIPT=$(cat <<EOF
+          set -e
+          cd /opt/ai-monitor
+          echo "$COMPOSE_B64" | base64 -d > docker-compose.prod.yml
+          export IMAGE_TAG=${GITHUB_SHA}
+          docker compose -f docker-compose.prod.yml pull
+          docker compose -f docker-compose.prod.yml up -d
+          for i in \$(seq 1 40); do curl -fs http://127.0.0.1:3001/health && break; sleep 3; done
+          echo; curl -fsS http://127.0.0.1:3001/health
+          echo; docker image prune -af >/dev/null
+          docker compose -f docker-compose.prod.yml ps
+          EOF
+          )
+          jq -n --arg s "$SCRIPT" '{commands: [$s], executionTimeout: ["900"]}' > ssm-params.json
+          CMD_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --comment "Deploy ${GITHUB_SHA::7}" \
+            --parameters file://ssm-params.json \
+            --query Command.CommandId --output text)
+          echo "SSM command: $CMD_ID"
+          for i in $(seq 1 180); do
+            STATUS=$(aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" --query Status --output text 2>/dev/null || echo Pending)
+            case "$STATUS" in Success|Failed|Cancelled|TimedOut) break ;; esac
+            sleep 5
+          done
+          aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" \
+            --query '[StandardOutputContent, StandardErrorContent]' --output text
+          echo "Status: $STATUS"
+          test "$STATUS" = Success
+
+      - name: Check the public API
+        run: curl -fsS --retry 5 --retry-delay 5 "$API_URL/health"
+
+  dashboards:
+    name: Deploy ${{ matrix.app }}
+    needs: backend
     runs-on: ubuntu-latest
-    environment: production
-    env:
-      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/ai-monitor' }}
+    strategy:
+      matrix:
+        include:
+          - app: admin-dashboard
+            bucket: admin-dashboard.tooldetect.in
+            distribution: E2XT4ZSEEXHZVE
+          - app: student-dashboard
+            bucket: student-dashboard.tooldetect.in
+            distribution: EMHQSVFRFZK74
+    defaults:
+      run:
+        working-directory: Aitooldetector/${{ matrix.app }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Copy compose file and Caddyfile
-        uses: appleboy/scp-action@v0.1.7
+      - uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: Aitooldetector/docker-compose.prod.yml,Aitooldetector/deploy/Caddyfile
-          target: ${{ env.DEPLOY_PATH }}
-          strip_components: 1
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Aitooldetector/${{ matrix.app }}/package-lock.json
 
-      - name: Pull and restart containers
-        uses: appleboy/ssh-action@v1.2.0
+      - run: npm ci
+
+      - name: Build
+        run: npm run build
         env:
-          IMAGE_TAG: ${{ github.sha }}
-          AWS_REGION: ${{ vars.AWS_REGION }}
+          VITE_API_URL: ${{ env.API_URL }}/api
+          VITE_SOCKET_URL: ${{ env.API_URL }}
+
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          envs: IMAGE_TAG,AWS_REGION,DEPLOY_PATH
-          script: |
-            set -e
-            cd "$DEPLOY_PATH"
-            ECR_REGISTRY=$(grep '^ECR_REGISTRY=' .env | cut -d= -f2-)
-            # Uses the instance profile (AmazonEC2ContainerRegistryReadOnly).
-            aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$ECR_REGISTRY"
-            export IMAGE_TAG
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            docker image prune -f
-            docker compose -f docker-compose.prod.yml ps
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+
+      - name: Upload to S3
+        run: |
+          # Hashed bundles never change, so browsers may cache them for a year.
+          aws s3 sync dist/assets "s3://${{ matrix.bucket }}/assets" --cache-control "public,max-age=31536000,immutable"
+          # Everything else (index.html, icons) must be revalidated on each visit.
+          aws s3 sync dist "s3://${{ matrix.bucket }}" --delete --exclude "assets/*" --cache-control "no-cache"
+
+      - name: Refresh CloudFront
+        run: aws cloudfront create-invalidation --distribution-id "${{ matrix.distribution }}" --paths "/*" --query Invalidation.Id --output text

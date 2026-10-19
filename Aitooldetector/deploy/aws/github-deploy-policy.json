@@ -1,0 +1,67 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "EcrLogin",
+      "Effect": "Allow",
+      "Action": "ecr:GetAuthorizationToken",
+      "Resource": "*"
+    },
+    {
+      "Sid": "EcrPushBackend",
+      "Effect": "Allow",
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer",
+        "ecr:InitiateLayerUpload",
+        "ecr:UploadLayerPart",
+        "ecr:CompleteLayerUpload",
+        "ecr:PutImage"
+      ],
+      "Resource": "arn:aws:ecr:ap-south-1:408945531212:repository/ai-monitor-backend"
+    },
+    {
+      "Sid": "DashboardBucketsList",
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": [
+        "arn:aws:s3:::admin-dashboard.tooldetect.in",
+        "arn:aws:s3:::student-dashboard.tooldetect.in"
+      ]
+    },
+    {
+      "Sid": "DashboardBucketsWrite",
+      "Effect": "Allow",
+      "Action": ["s3:PutObject", "s3:DeleteObject", "s3:GetObject"],
+      "Resource": [
+        "arn:aws:s3:::admin-dashboard.tooldetect.in/*",
+        "arn:aws:s3:::student-dashboard.tooldetect.in/*"
+      ]
+    },
+    {
+      "Sid": "DashboardCacheRefresh",
+      "Effect": "Allow",
+      "Action": ["cloudfront:CreateInvalidation", "cloudfront:GetInvalidation"],
+      "Resource": [
+        "arn:aws:cloudfront::408945531212:distribution/E2XT4ZSEEXHZVE",
+        "arn:aws:cloudfront::408945531212:distribution/EMHQSVFRFZK74"
+      ]
+    },
+    {
+      "Sid": "DeployBackendViaSsm",
+      "Effect": "Allow",
+      "Action": "ssm:SendCommand",
+      "Resource": [
+        "arn:aws:ec2:ap-south-1:408945531212:instance/i-0570f5a38a841fbec",
+        "arn:aws:ssm:ap-south-1::document/AWS-RunShellScript"
+      ]
+    },
+    {
+      "Sid": "ReadSsmResults",
+      "Effect": "Allow",
+      "Action": ["ssm:GetCommandInvocation", "ssm:ListCommandInvocations"],
+      "Resource": "*"
+    }
+  ]
+}

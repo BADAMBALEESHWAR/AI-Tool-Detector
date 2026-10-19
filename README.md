@@ -12,7 +12,7 @@ A comprehensive, enterprise-grade, cross-platform AI usage monitoring and academ
 
 The system transparently tracks generative AI usage across student desktop environments and web browsers during examinations, assignments, and campus sessions. It operates on a **privacy-first metadata-only principle**: recording tool names, domains, process titles, timestamps, and active durations — **strictly never capturing message content, chat prompts, keystrokes, or screenshots**.
 
-> **🐳 Docker & AWS:** run the whole stack with `docker compose up --build` from `Aitooldetector/`, and deploy to AWS (ECR + EC2) automatically through GitHub Actions. See [Aitooldetector/DEPLOYMENT.md](Aitooldetector/DEPLOYMENT.md).
+> **🐳 Docker & AWS:** run the whole stack with `docker compose up --build` from `Aitooldetector/`, and deploy to AWS automatically through GitHub Actions (API: ECR → EC2 via Systems Manager; dashboards: S3 + CloudFront). See [Aitooldetector/DEPLOYMENT.md](Aitooldetector/DEPLOYMENT.md).
 
 ---
 

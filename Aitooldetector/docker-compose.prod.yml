@@ -1,78 +1,35 @@
-# Production stack for an AWS EC2 host. Images are built by GitHub Actions and
-# pulled from Amazon ECR; Caddy terminates HTTPS (Let's Encrypt) in front of them.
-# The deploy workflow copies this file and deploy/Caddyfile to the server and runs:
+# Production backend on the EC2 host behind api.tooldetect.in.
+#
+#   CloudFront (HTTPS) → host nginx :80 → 127.0.0.1:3001 (this container) → Amazon RDS
+#
+# The dashboards are static sites on S3 + CloudFront and are not part of this file.
+# Lives in /opt/ai-monitor on the server next to its .env (DATABASE_URL, JWT
+# secrets, FRONTEND_URL / ADMIN_URL / STUDENT_URL, ECR_REGISTRY). The deploy
+# workflow uploads this file and runs:
 #   IMAGE_TAG=<git sha> docker compose -f docker-compose.prod.yml up -d
-# All other values come from the .env file next to it on the server
-# (template: .env.example). See DEPLOYMENT.md.
+# See DEPLOYMENT.md.
 name: ai-monitor
 
 services:
-  db:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: ${POSTGRES_DB:-ai_monitor}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-
   backend:
     image: ${ECR_REGISTRY:?set ECR_REGISTRY in .env}/ai-monitor-backend:${IMAGE_TAG:-latest}
     restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
+    env_file: .env
     environment:
       NODE_ENV: production
-      TRUST_PROXY: "1"
-      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-ai_monitor}}
-      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET in .env}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?set JWT_REFRESH_SECRET in .env}
-      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:?set ADMIN_JWT_SECRET in .env}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-15m}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-7d}
-      ADMIN_JWT_EXPIRES_IN: ${ADMIN_JWT_EXPIRES_IN:-8h}
-      FRONTEND_URL: ${STUDENT_URL:?set STUDENT_URL in .env}
-      ADMIN_URL: ${ADMIN_URL:?set ADMIN_URL in .env}
+      PORT: "3001"
+      # Two proxies in front of the API: CloudFront and the host nginx.
+      TRUST_PROXY: "2"
       RUN_SEED: ${RUN_SEED:-false}
-    volumes:
-      - uploads:/app/uploads
-      - logs:/app/logs
-      - ./downloads:/app/downloads:ro
-
-  student:
-    image: ${ECR_REGISTRY}/ai-monitor-student:${IMAGE_TAG:-latest}
-    restart: unless-stopped
-
-  admin:
-    image: ${ECR_REGISTRY}/ai-monitor-admin:${IMAGE_TAG:-latest}
-    restart: unless-stopped
-
-  caddy:
-    image: caddy:2.8-alpine
-    restart: unless-stopped
-    depends_on: [backend, student, admin]
-    environment:
-      STUDENT_URL: ${STUDENT_URL}
-      ADMIN_URL: ${ADMIN_URL}
-      API_URL: ${API_URL:?set API_URL in .env}
     ports:
-      - "80:80"
-      - "443:443"
+      # Only nginx on the host can reach the API directly.
+      - "127.0.0.1:3001:3001"
     volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-
-volumes:
-  pgdata:
-  uploads:
-  logs:
-  caddy_data:
-  caddy_config:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+      - ./downloads:/app/downloads:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

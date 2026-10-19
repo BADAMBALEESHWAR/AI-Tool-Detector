@@ -38,6 +38,7 @@ const isOriginAllowed = (origin: string | undefined, callback: (err: Error | nul
     origin.startsWith('moz-extension://') ||
     origin === (process.env.FRONTEND_URL || 'http://localhost:5173') ||
     origin === (process.env.ADMIN_URL || 'http://localhost:5174') ||
+    origin === (process.env.STUDENT_URL || 'http://localhost:5173') ||
     origin.startsWith('http://localhost:') ||
     origin.startsWith('http://127.0.0.1:')
   ) {
