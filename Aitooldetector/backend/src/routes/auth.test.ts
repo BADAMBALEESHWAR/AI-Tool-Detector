@@ -2,13 +2,16 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import request from 'supertest';
 
+// The 10-attempts-per-15-minutes limiter would throttle the test run itself.
+jest.mock('express-rate-limit', () => () => (_req: any, _res: any, next: () => void) => next());
+
 // In-memory stand-in for the admin_users table.
-const admins: { id: string; name: string; email: string; passwordHash: string; role: string }[] = [];
+const admins: { id: string; name: string; email: string; passwordHash: string; role: string; status: string }[] = [];
 
 jest.mock('../utils/prisma', () => ({
   prisma: {
     adminUser: {
-      count: jest.fn(async () => admins.length),
+      count: jest.fn(async ({ where }: any = {}) => admins.filter(a => !where?.status || a.status === where.status).length),
       findUnique: jest.fn(async ({ where }: any) => admins.find(a => (where.id ? a.id === where.id : a.email === where.email)) || null),
       create: jest.fn(async ({ data }: any) => {
         const admin = { id: `admin-${admins.length + 1}`, ...data };
@@ -50,21 +53,30 @@ describe('admin sign-up lockdown', () => {
     expect(res.body.admin.role).toBe('superadmin');
   });
 
-  it('rejects public sign-up once an admin exists', async () => {
+  it('turns public sign-up into a pending request once an admin exists', async () => {
     await request(app).post('/api/auth/admin/signup').send(body(1));
     const res = await request(app).post('/api/auth/admin/signup').send(body(2));
-    expect(res.status).toBe(403);
-    expect(admins).toHaveLength(1);
+    expect(res.status).toBe(202);
+    expect(res.body.pending).toBe(true);
+    expect(admins[1]).toMatchObject({ email: 'admin2@nmims.test', role: 'admin', status: 'pending' });
   });
 
-  it('rejects forged and non-superadmin tokens', async () => {
+  it('never lets a pending request sign in', async () => {
     await request(app).post('/api/auth/admin/signup').send(body(1));
-    admins.push({ id: 'plain', name: 'Plain', email: 'plain@nmims.test', passwordHash: 'x', role: 'admin' });
+    await request(app).post('/api/auth/admin/signup').send(body(2));
+    const res = await request(app).post('/api/auth/admin/signin').send({ email: 'admin2@nmims.test', password: 'Passw0rd!x' });
+    expect(res.status).toBe(403);
+    expect(res.body.token).toBeUndefined();
+  });
 
+  it('does not let forged or non-superadmin tokens create active admins', async () => {
+    await request(app).post('/api/auth/admin/signup').send(body(1));
+    admins.push({ id: 'plain', name: 'Plain', email: 'plain@nmims.test', passwordHash: 'x', role: 'admin', status: 'active' });
     const forged = jwt.sign({ adminId: 'admin-1' }, 'wrong-secret');
-    expect((await request(app).post('/api/auth/admin/signup').set('Authorization', `Bearer ${forged}`).send(body(3))).status).toBe(403);
-    expect((await request(app).post('/api/auth/admin/signup').set('Authorization', `Bearer ${tokenFor('plain')}`).send(body(4))).status).toBe(403);
-    expect(admins).toHaveLength(2);
+    await request(app).post('/api/auth/admin/signup').set('Authorization', `Bearer ${forged}`).send(body(3));
+    await request(app).post('/api/auth/admin/signup').set('Authorization', `Bearer ${tokenFor('plain')}`).send(body(4));
+    expect(admins.filter(a => a.status === 'active')).toHaveLength(2);
+    expect(admins.filter(a => a.status === 'pending')).toHaveLength(2);
   });
 
   it('lets a superadmin create further admins with the admin role', async () => {
@@ -72,6 +84,7 @@ describe('admin sign-up lockdown', () => {
     const res = await request(app).post('/api/auth/admin/signup').set('Authorization', `Bearer ${tokenFor('admin-1')}`).send(body(2));
     expect(res.status).toBe(201);
     expect(res.body.admin.role).toBe('admin');
+    expect(admins[1].status).toBe('active');
   });
 
   it('validates input before anything else', async () => {

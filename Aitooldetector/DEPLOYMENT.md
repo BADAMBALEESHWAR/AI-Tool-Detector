@@ -102,9 +102,12 @@ before risky changes (e.g. `ai-tool-detector-db-pre-catalog-v3-2026-10-19`).
 
 ## Administrator accounts
 
-Public admin sign-up is closed. The admin login page offers **Create the first
-account** only while no administrator exists, and that account becomes
-`superadmin`. After that, superadmins add staff from **Settings → Administrators**.
+The admin sign-in page has a **Sign Up** tab:
+
+- With **no administrator yet**, it creates the first account, which becomes `superadmin` immediately.
+- Afterwards it submits an **access request**. The person cannot sign in until a superadmin
+  approves it under **Settings → Administrators → Pending access requests** (or rejects it).
+- Superadmins can also create accounts directly from the same card.
 
 ## Rebuilding from scratch
 

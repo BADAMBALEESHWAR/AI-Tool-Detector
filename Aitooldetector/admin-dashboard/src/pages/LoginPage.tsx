@@ -46,14 +46,15 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
   // Success message when redirected to Sign In
   const [justRegisteredMsg, setJustRegisteredMsg] = useState<string | null>(null);
 
-  // Self-service sign-up exists only for creating the first (super)admin.
+  // With no administrator yet, sign-up creates the first superadmin immediately; otherwise it
+  // submits a request that a superadmin must approve.
   const [setupRequired, setSetupRequired] = useState(false);
   useEffect(() => {
     api.get('/auth/admin/setup-status')
       .then(res => setSetupRequired(Boolean(res.data?.setupRequired)))
       .catch(() => setSetupRequired(false));
   }, []);
-  const activeTab = setupRequired ? tab : 'signin';
+  const activeTab = tab;
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -100,7 +101,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
       const res = await signup(name.trim(), signUpEmail.trim(), signUpPassword);
       toast.success(res.message || 'Admin account created successfully!');
       setSetupRequired(false);
-      
+
       // Pre-fill email in Sign In form and reset passwords
       setSignInEmail(signUpEmail.trim());
       setSignInPassword('');
@@ -110,7 +111,11 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
       setSignUpEmail('');
 
       // Show banner and switch tab to Sign In
-      setJustRegisteredMsg(`Account created for ${signUpEmail.trim()}. Please enter your password to sign in.`);
+      setJustRegisteredMsg(
+        res.pending
+          ? `Request sent for ${signUpEmail.trim()}. You can sign in once a superadmin approves it.`
+          : `Account created for ${signUpEmail.trim()}. Please enter your password to sign in.`
+      );
       setTab('signin');
       navigate('/login', { replace: true });
     } catch (err: any) {
@@ -133,8 +138,8 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
     >
         {/* Card Container */}
         <div className="admin-card p-7 shadow-lg border-t-4 border-t-nmims-600">
-          {/* Segmented Tab Switcher (first-run setup only) */}
-          {setupRequired && (
+          {/* Segmented Tab Switcher */}
+          {(
           <div className="flex bg-zinc-800/80 p-1 rounded-xl mb-6 border border-white/5">
             <button
               type="button"
@@ -164,7 +169,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
               }`}
             >
               <UserPlus size={14} />
-              Create Account
+              Sign Up
             </button>
           </div>
           )}
@@ -174,7 +179,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
             <div className="mb-5 p-3.5 bg-emerald-500/10 border border-emerald-500/25 rounded-xl flex items-start gap-2.5 animate-fade-in">
               <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />
               <div className="text-xs text-emerald-300">
-                <p className="font-semibold mb-0.5">Account Ready</p>
+                <p className="font-semibold mb-0.5">Done</p>
                 <p className="text-emerald-400/90 leading-relaxed">{justRegisteredMsg}</p>
               </div>
             </div>
@@ -252,10 +257,9 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
                 )}
               </button>
 
-              {setupRequired ? (
               <div className="pt-2 text-center">
                 <p className="text-xs text-zinc-500">
-                  No administrator exists yet.{' '}
+                  {setupRequired ? 'No administrator exists yet.' : 'Need access?'}{' '}
                   <button
                     type="button"
                     onClick={() => {
@@ -264,15 +268,10 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
                     }}
                     className="text-violet-400 hover:text-violet-300 font-medium hover:underline transition-colors"
                   >
-                    Create the first account
+                    {setupRequired ? 'Create the first account' : 'Request access'}
                   </button>
                 </p>
               </div>
-              ) : (
-              <p className="pt-2 text-center text-xs text-zinc-500">
-                Need access? Ask a superadmin to create an administrator account for you.
-              </p>
-              )}
             </form>
           )}
 
@@ -282,7 +281,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
               <div className="flex items-center gap-2 pb-3 border-b border-white/5">
                 <UserPlus size={14} className="text-violet-400" />
                 <span className="text-xs text-zinc-400 font-medium uppercase tracking-wider">
-                  Create Admin Account
+                  {setupRequired ? "Create First Admin Account" : "Request Admin Access"}
                 </span>
               </div>
 
@@ -386,12 +385,12 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
                 {signUpLoading ? (
                   <>
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Creating Account...
+                    Submitting...
                   </>
                 ) : (
                   <>
                     <UserPlus size={15} />
-                    Create Admin Account
+                    {setupRequired ? "Create Admin Account" : "Request Access"}
                   </>
                 )}
               </button>

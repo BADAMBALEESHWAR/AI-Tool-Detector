@@ -668,3 +668,38 @@ adminRouter.patch(
     }
   }
 );
+
+
+// ── Admin access requests (superadmin only; role is read from the database) ─────────
+async function requireSuperadmin(req: Request, res: Response): Promise<boolean> {
+  const me = await prisma.adminUser.findUnique({ where: { id: req.admin!.adminId } });
+  if (me?.role === 'superadmin' && me.status === 'active') return true;
+  res.status(403).json({ error: 'Superadmin access required' });
+  return false;
+}
+
+adminRouter.get('/admin-requests', async (req: Request, res: Response) => {
+  if (!(await requireSuperadmin(req, res))) return;
+  const requests = await prisma.adminUser.findMany({
+    where: { status: 'pending' },
+    select: { id: true, name: true, email: true, createdAt: true },
+    orderBy: { createdAt: 'asc' },
+  });
+  res.json({ requests });
+});
+
+adminRouter.patch('/admin-requests/:id/approve', async (req: Request, res: Response) => {
+  if (!(await requireSuperadmin(req, res))) return;
+  const result = await prisma.adminUser.updateMany({ where: { id: req.params.id, status: 'pending' }, data: { status: 'active' } });
+  if (result.count === 0) { res.status(404).json({ error: 'Request not found' }); return; }
+  logger.info(`Admin access approved for ${req.params.id} by ${req.admin!.email}`);
+  res.json({ approved: true });
+});
+
+adminRouter.delete('/admin-requests/:id', async (req: Request, res: Response) => {
+  if (!(await requireSuperadmin(req, res))) return;
+  const result = await prisma.adminUser.deleteMany({ where: { id: req.params.id, status: 'pending' } });
+  if (result.count === 0) { res.status(404).json({ error: 'Request not found' }); return; }
+  logger.info(`Admin access request ${req.params.id} rejected by ${req.admin!.email}`);
+  res.json({ rejected: true });
+});

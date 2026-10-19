@@ -173,7 +173,7 @@ authRouter.post('/refresh', async (req: Request, res: Response) => {
 // Lets the login page offer first-run account creation only while no admin exists.
 authRouter.get('/admin/setup-status', async (_req: Request, res: Response) => {
   try {
-    const count = await prisma.adminUser.count();
+    const count = await prisma.adminUser.count({ where: { status: 'active' } });
     res.json({ setupRequired: count === 0 });
   } catch (err) {
     logger.error('Admin setup-status error:', err);
@@ -190,15 +190,17 @@ async function isSuperadminRequest(req: Request): Promise<boolean> {
     if (!payload.adminId) return false;
     // Role comes from the database, not the token, so demoted admins lose access immediately.
     const admin = await prisma.adminUser.findUnique({ where: { id: payload.adminId } });
-    return admin?.role === 'superadmin';
+    return admin?.role === 'superadmin' && admin.status === 'active';
   } catch {
     return false;
   }
 }
 
 // ── Admin Signup ─────────────────────────────────────────────────────────────
-// Open only for the very first account (which becomes superadmin). After that,
-// only a signed-in superadmin can create further admin accounts.
+// The very first account becomes an active superadmin. After that:
+//   - a signed-in superadmin creates active admin accounts directly;
+//   - anyone else creates a PENDING request that cannot sign in until a superadmin approves it.
+
 authRouter.post(
   '/admin/signup',
   authLimiter,
@@ -219,11 +221,8 @@ authRouter.post(
     const { name, email, password } = req.body;
 
     try {
-      const count = await prisma.adminUser.count();
-      if (count > 0 && !(await isSuperadminRequest(req))) {
-        res.status(403).json({ error: 'Admin registration is closed. Ask a superadmin to create your account.' });
-        return;
-      }
+      const count = await prisma.adminUser.count({ where: { status: 'active' } });
+      const direct = count === 0 || (await isSuperadminRequest(req));
 
       const existing = await prisma.adminUser.findUnique({ where: { email } });
       if (existing) {
@@ -233,6 +232,7 @@ authRouter.post(
 
       const passwordHash = await bcrypt.hash(password, 12);
       const role = count === 0 ? 'superadmin' : 'admin';
+      const status = direct ? 'active' : 'pending';
 
       const admin = await prisma.adminUser.create({
         data: {
@@ -240,8 +240,18 @@ authRouter.post(
           email,
           passwordHash,
           role,
+          status,
         },
       });
+
+      if (!direct) {
+        logger.info(`Admin access requested: ${email}`);
+        res.status(202).json({
+          pending: true,
+          message: 'Request submitted. A superadmin must approve it before you can sign in.',
+        });
+        return;
+      }
 
       logger.info(`New Admin account created: ${email} (${role})`);
       res.status(201).json({
@@ -287,6 +297,10 @@ authRouter.post(
       const valid = await bcrypt.compare(password, admin.passwordHash);
       if (!valid) {
         res.status(401).json({ error: 'Invalid email or password.' });
+        return;
+      }
+      if (admin.status !== 'active') {
+        res.status(403).json({ error: 'Your access request is awaiting superadmin approval.' });
         return;
       }
 
