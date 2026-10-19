@@ -3,7 +3,7 @@
     "electron.vite.config.ts",
     "src/main/**/*",
     "src/preload/**/*",
-    "src/data/**/*"
+    "src/data/*.json"
   ],
   "compilerOptions": {
     "composite": true,

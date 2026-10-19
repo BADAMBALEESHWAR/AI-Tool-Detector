@@ -3,9 +3,10 @@ import axios from 'axios';
 import { app } from 'electron';
 import { existsSync } from 'fs';
 import { join } from 'path';
+import { API_BASE } from './config';
 import { logger } from './logger';
+import { refreshAccessToken } from './reporter';
 
-const API_BASE = 'https://api.tooldetect.in/api';
 let heartbeatInterval: ReturnType<typeof setInterval> | null = null;
 
 const HEARTBEAT_INTERVAL_MS = 60_000; // 60 seconds
@@ -30,7 +31,7 @@ export function startHeartbeat(store: Store<any>): void {
     } catch (err: any) {
       if (err.response?.status === 401) {
         logger.warn('Heartbeat: token expired, attempting refresh');
-        await refreshToken(store);
+        await refreshAccessToken(store);
       }
     }
   };
@@ -53,18 +54,4 @@ async function checkExtensionInstalled(): Promise<boolean> {
   // Check for extension token file written by the extension via native messaging
   const tokenFile = join(app.getPath('userData'), 'extension-token.json');
   return existsSync(tokenFile);
-}
-
-async function refreshToken(store: Store<any>): Promise<void> {
-  const refreshToken = store.get('refreshToken') as string | undefined;
-  if (!refreshToken) return;
-  try {
-    const res = await axios.post(`${API_BASE}/auth/refresh`, { refreshToken });
-    store.set('accessToken', res.data.accessToken);
-    store.set('refreshToken', res.data.refreshToken);
-  } catch {
-    logger.error('Token refresh failed — signed out');
-    store.delete('accessToken');
-    store.delete('refreshToken');
-  }
 }

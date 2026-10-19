@@ -4,10 +4,11 @@ import axios from 'axios';
 import { writeFileSync } from 'fs';
 import { join } from 'path';
 import os from 'os';
+import { API_BASE } from './config';
 import { logger } from './logger';
 import { getActiveToolsSnapshot, clearRecentSessions } from './monitor';
+import { getCatalog } from './catalogStore';
 
-const API_BASE = 'https://api.tooldetect.in/api';
 
 interface SignInResult {
   studentInfo: { sapId: string; name: string; branch: string };
@@ -52,7 +53,7 @@ export function setupIPC(ipcMain: IpcMain, store: Store<any>, callbacks: IPCCall
         {
           hostname: os.hostname(),
           osType,
-          appVersion: '1.0.0',
+          appVersion: app.getVersion(),
         },
         { headers: { Authorization: `Bearer ${accessToken}` }, timeout: 15000 }
       );
@@ -132,6 +133,12 @@ export function setupIPC(ipcMain: IpcMain, store: Store<any>, callbacks: IPCCall
   });
 
   // GET live active & recent tools snapshot
+  // What this device watches for — shown to the student for transparency
+  ipcMain.handle('get-catalog-summary', () => {
+    const c = getCatalog();
+    return { version: c.version, web: c.web.length, apps: new Set(Array.from(c.apps.values()).map(a => a.toolId)).size, builtIn: new Set(c.markers.map(m => m.toolId)).size, appVersion: app.getVersion() };
+  });
+
   ipcMain.handle('get-active-tools', () => {
     return getActiveToolsSnapshot();
   });
@@ -139,7 +146,7 @@ export function setupIPC(ipcMain: IpcMain, store: Store<any>, callbacks: IPCCall
   // CLEAR recent session history
   ipcMain.handle('clear-session-history', () => {
     store.delete('recentSessions');
-    clearRecentSessions();
+    clearRecentSessions(store);
     return { success: true };
   });
 

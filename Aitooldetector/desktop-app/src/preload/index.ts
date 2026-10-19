@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   signOut: () => ipcRenderer.invoke('sign-out'),
   getMonitoringStatus: () => ipcRenderer.invoke('get-monitoring-status'),
   getActiveTools: () => ipcRenderer.invoke('get-active-tools'),
+  getCatalogSummary: () => ipcRenderer.invoke('get-catalog-summary'),
   clearSessionHistory: () => ipcRenderer.invoke('clear-session-history'),
   onActiveToolsUpdated: (cb: (data: { activeTools: any[]; recentTools: any[] }) => void) => {
     const listener = (_: any, data: any) => cb(data);
@@ -18,7 +19,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   onMonitoringStarted: (cb: () => void) => ipcRenderer.on('monitoring-started', cb),
   onSignedOut: (cb: () => void) => ipcRenderer.on('signed-out', cb),
-  onToolNotification: (cb: (notif: { type: 'ACTIVE_NOW' | 'DEACTIVATED'; toolName: string; browserName: string; time?: string; durationFormatted?: string }) => void) => {
+  onToolNotification: (cb: (notif: { type: 'ACTIVE_NOW' | 'DEACTIVATED'; toolName: string; surface: string; kind: string; durationSeconds?: number }) => void) => {
     const listener = (_: any, data: any) => cb(data);
     ipcRenderer.on('tool-notification', listener);
     return () => ipcRenderer.removeListener('tool-notification', listener);

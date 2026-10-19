@@ -83,7 +83,7 @@ function createWindow(): BrowserWindow {
 
     frame: false,
     titleBarStyle: 'hidden',
-    backgroundColor: '#09090b',
+    backgroundColor: '#f4f4f5',
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       sandbox: false,
@@ -119,7 +119,7 @@ function createWindow(): BrowserWindow {
 function createTray() {
   const icon = getAppIcon();
   tray = new Tray(icon);
-  tray.setToolTip('AI Monitor — Monitoring Active');
+  tray.setToolTip("SVKM's NMIMS AI Integrity Monitor");
 
   const updateContextMenu = () => {
     const menu = Menu.buildFromTemplate([
@@ -129,7 +129,7 @@ function createTray() {
       },
       { type: 'separator' },
       {
-        label: 'Open AI Monitor',
+        label: 'Open AI Integrity Monitor',
         click: () => {
           showMainWindow();
         },

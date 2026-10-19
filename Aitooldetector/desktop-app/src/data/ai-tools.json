@@ -1,402 +1,1046 @@
 {
-  "version": "2.4.0",
-  "updatedAt": "2026-08-31T15:00:00Z",
+  "catalogVersion": 3,
   "tools": [
     {
-      "id": "chatgpt",
+      "id": "chatgpt-com",
       "name": "ChatGPT",
       "type": "WEB",
-      "domains": ["chatgpt.com", "chat.openai.com", "openai.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["ChatGPT", "OpenAI", "chatgpt.com", "chat.openai.com", "New chat - ChatGPT"]
+      "pattern": "chatgpt.com",
+      "aliases": [
+        "chat.openai.com"
+      ],
+      "keywords": [
+        "ChatGPT"
+      ],
+      "description": "OpenAI ChatGPT",
+      "status": "BUILT_IN"
     },
     {
-      "id": "gemini",
+      "id": "gemini-google-com",
       "name": "Google Gemini",
       "type": "WEB",
-      "domains": [
-        "gemini.google.com",
+      "pattern": "gemini.google.com",
+      "aliases": [
         "bard.google.com"
       ],
-      "processNames": [],
-      "windowTitleKeywords": [
+      "keywords": [
         "Google Gemini",
-        "Gemini",
-        "Gemini in Chrome",
-        "Gemini (Side Panel)",
-        "Close Gemini in Chrome",
-        "Initial Greeting and Support Offer",
-        "Show thinking",
-        "Google Bard",
-        "gemini.google.com",
-        "bard.google.com",
-        "Conversations - Gemini"
-      ]
+        "Gemini"
+      ],
+      "description": "Google Gemini",
+      "status": "BUILT_IN"
     },
     {
-      "id": "claude",
+      "id": "claude-ai",
       "name": "Claude",
       "type": "WEB",
-      "domains": ["claude.ai", "anthropic.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Claude", "Anthropic Claude", "claude.ai", "Claude 3", "Claude 3.5", "New chat - Claude"]
+      "pattern": "claude.ai",
+      "aliases": [],
+      "keywords": [
+        "Claude"
+      ],
+      "description": "Anthropic Claude",
+      "status": "BUILT_IN"
     },
     {
-      "id": "copilot",
+      "id": "copilot-microsoft-com",
       "name": "Microsoft Copilot",
       "type": "WEB",
-      "domains": ["copilot.microsoft.com", "bing.com/chat", "bing.com/copilot", "edgeservices.bing.com", "sydney.bing.com"],
-      "processNames": [],
-      "windowTitleKeywords": [
+      "pattern": "copilot.microsoft.com",
+      "aliases": [
+        "copilot.cloud.microsoft",
+        "bing.com/chat"
+      ],
+      "keywords": [
         "Microsoft Copilot",
-        "Edge Copilot",
         "Copilot",
-        "Bing Chat",
-        "Bing Copilot",
-        "copilot.microsoft.com",
-        "Copilot in Windows"
-      ]
+        "Microsoft 365 Copilot"
+      ],
+      "description": "Microsoft Copilot (consumer and Microsoft 365)",
+      "status": "BUILT_IN"
     },
     {
-      "id": "github-copilot",
+      "id": "github-com-copilot",
       "name": "GitHub Copilot",
       "type": "WEB",
-      "domains": ["github.com/copilot", "copilot.github.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["GitHub Copilot", "Copilot Chat", "copilot.github.com", "github.com/copilot"]
+      "pattern": "github.com/copilot",
+      "aliases": [],
+      "keywords": [
+        "Copilot - GitHub",
+        "GitHub Copilot"
+      ],
+      "description": "GitHub Copilot chat on github.com",
+      "status": "BUILT_IN"
     },
     {
-      "id": "perplexity",
-      "name": "Perplexity AI",
+      "id": "perplexity-ai",
+      "name": "Perplexity",
       "type": "WEB",
-      "domains": ["perplexity.ai", "www.perplexity.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["Perplexity AI", "Perplexity", "perplexity.ai", "Ask Anything - Perplexity"]
+      "pattern": "perplexity.ai",
+      "aliases": [],
+      "keywords": [
+        "Perplexity"
+      ],
+      "description": "Perplexity AI answer engine",
+      "status": "BUILT_IN"
     },
     {
-      "id": "deepseek",
+      "id": "chat-deepseek-com",
       "name": "DeepSeek",
       "type": "WEB",
-      "domains": ["deepseek.com", "chat.deepseek.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["DeepSeek Chat", "DeepSeek", "chat.deepseek.com", "deepseek.com", "DeepSeek - Into the Unknown"]
+      "pattern": "chat.deepseek.com",
+      "aliases": [
+        "deepseek.com"
+      ],
+      "keywords": [
+        "DeepSeek"
+      ],
+      "description": "DeepSeek chat",
+      "status": "BUILT_IN"
     },
     {
-      "id": "grok",
+      "id": "grok-com",
       "name": "Grok",
       "type": "WEB",
-      "domains": ["grok.com", "x.com/grok", "grok.x.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["xAI Grok", "Grok", "grok.com", "grok.x.ai"]
-    },
-    {
-      "id": "replit",
-      "name": "Replit",
-      "type": "WEB",
-      "domains": ["replit.com", "replit.dev", "repl.it"],
-      "processNames": [],
-      "windowTitleKeywords": ["Replit Agent", "Replit", "replit.com", "repl.it", "replit.dev"]
-    },
-    {
-      "id": "mistral",
-      "name": "Mistral Le Chat",
-      "type": "WEB",
-      "domains": ["chat.mistral.ai", "mistral.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["Mistral Le Chat", "Mistral AI", "chat.mistral.ai", "mistral.ai"]
-    },
-    {
-      "id": "poe",
-      "name": "Poe",
-      "type": "WEB",
-      "domains": ["poe.com", "www.poe.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Poe AI", "Poe - Fast, Helpful AI Chat", "poe.com", "Poe"]
-    },
-    {
-      "id": "character-ai",
-      "name": "Character.AI",
-      "type": "WEB",
-      "domains": ["character.ai", "c.ai", "beta.character.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["Character.AI", "Character AI", "character.ai", "c.ai"]
-    },
-    {
-      "id": "huggingface",
-      "name": "HuggingFace Chat",
-      "type": "WEB",
-      "domains": ["huggingface.co", "huggingface.co/chat"],
-      "processNames": [],
-      "windowTitleKeywords": ["HuggingFace Chat", "HuggingChat", "Hugging Face", "huggingface.co"]
-    },
-    {
-      "id": "aistudio",
-      "name": "Google AI Studio",
-      "type": "WEB",
-      "domains": ["aistudio.google.com", "makersuite.google.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Google AI Studio", "AI Studio", "MakerSuite", "aistudio.google.com"]
-    },
-    {
-      "id": "notebooklm",
-      "name": "Google NotebookLM",
-      "type": "WEB",
-      "domains": ["notebooklm.google.com", "notebooklm.google"],
-      "processNames": [],
-      "windowTitleKeywords": ["Google NotebookLM", "NotebookLM", "notebooklm.google.com"]
-    },
-    {
-      "id": "bolt",
-      "name": "Bolt.new",
-      "type": "WEB",
-      "domains": ["bolt.new", "bolt.diy", "stackblitz.com/bolt"],
-      "processNames": [],
-      "windowTitleKeywords": ["Bolt.new", "Bolt AI", "Bolt AI builder", "Bolt", "bolt.new", "bolt.diy"]
-    },
-    {
-      "id": "lovable",
-      "name": "Lovable",
-      "type": "WEB",
-      "domains": ["lovable.dev", "lovable.app"],
-      "processNames": [],
-      "windowTitleKeywords": ["Lovable AI", "Lovable", "lovable.dev", "lovable.app"]
-    },
-    {
-      "id": "blackbox",
-      "name": "Blackbox AI",
-      "type": "WEB",
-      "domains": ["blackbox.ai", "www.blackbox.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["Blackbox AI", "BLACKBOX AI", "blackbox.ai"]
-    },
-    {
-      "id": "phind",
-      "name": "Phind",
-      "type": "WEB",
-      "domains": ["phind.com", "www.phind.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Phind: AI search engine", "Phind", "phind.com"]
-    },
-    {
-      "id": "v0",
-      "name": "v0 by Vercel",
-      "type": "WEB",
-      "domains": ["v0.dev", "v0.app"],
-      "processNames": [],
-      "windowTitleKeywords": ["v0 by Vercel", "v0: Generative UI", "v0.dev", "v0.app", "v0 App"]
-    },
-    {
-      "id": "midjourney",
-      "name": "Midjourney",
-      "type": "WEB",
-      "domains": ["midjourney.com", "alpha.midjourney.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Midjourney", "midjourney.com"]
-    },
-    {
-      "id": "youcom",
-      "name": "You.com",
-      "type": "WEB",
-      "domains": ["you.com", "www.you.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["You.com", "you.com"]
-    },
-    {
-      "id": "pi",
-      "name": "Pi AI",
-      "type": "WEB",
-      "domains": ["pi.ai", "heypi.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Pi, your personal AI", "Inflection Pi", "Pi AI", "pi.ai", "heypi.com"]
+      "pattern": "grok.com",
+      "aliases": [
+        "x.com/i/grok"
+      ],
+      "keywords": [
+        "Grok"
+      ],
+      "description": "xAI Grok",
+      "status": "BUILT_IN"
     },
     {
       "id": "meta-ai",
       "name": "Meta AI",
       "type": "WEB",
-      "domains": ["meta.ai", "ai.meta.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Meta AI", "meta.ai", "ai.meta.com"]
+      "pattern": "meta.ai",
+      "aliases": [],
+      "keywords": [
+        "Meta AI"
+      ],
+      "description": "Meta AI assistant",
+      "status": "BUILT_IN"
     },
     {
-      "id": "kimi",
+      "id": "chat-mistral-ai",
+      "name": "Mistral Le Chat",
+      "type": "WEB",
+      "pattern": "chat.mistral.ai",
+      "aliases": [],
+      "keywords": [
+        "Le Chat",
+        "Le Chat - Mistral AI"
+      ],
+      "description": "Mistral AI Le Chat",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "poe-com",
+      "name": "Poe",
+      "type": "WEB",
+      "pattern": "poe.com",
+      "aliases": [],
+      "keywords": [
+        "Poe"
+      ],
+      "description": "Quora Poe multi-model chat",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "character-ai",
+      "name": "Character.AI",
+      "type": "WEB",
+      "pattern": "character.ai",
+      "aliases": [
+        "c.ai"
+      ],
+      "keywords": [
+        "Character.AI"
+      ],
+      "description": "Character.AI chatbots",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "huggingface-co-chat",
+      "name": "HuggingChat",
+      "type": "WEB",
+      "pattern": "huggingface.co/chat",
+      "aliases": [],
+      "keywords": [
+        "HuggingChat"
+      ],
+      "description": "Hugging Face chat",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "aistudio-google-com",
+      "name": "Google AI Studio",
+      "type": "WEB",
+      "pattern": "aistudio.google.com",
+      "aliases": [],
+      "keywords": [
+        "Google AI Studio"
+      ],
+      "description": "Google AI Studio (Gemini playground)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "notebooklm-google-com",
+      "name": "NotebookLM",
+      "type": "WEB",
+      "pattern": "notebooklm.google.com",
+      "aliases": [],
+      "keywords": [
+        "NotebookLM"
+      ],
+      "description": "Google NotebookLM research assistant",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "chat-qwen-ai",
+      "name": "Qwen Chat",
+      "type": "WEB",
+      "pattern": "chat.qwen.ai",
+      "aliases": [
+        "chat.qwenlm.ai"
+      ],
+      "keywords": [
+        "Qwen Chat",
+        "Qwen"
+      ],
+      "description": "Alibaba Qwen",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "kimi-com",
       "name": "Kimi",
       "type": "WEB",
-      "domains": ["kimi.ai", "kimi.moonshot.cn"],
-      "processNames": [],
-      "windowTitleKeywords": ["Moonshot Kimi", "Kimi AI", "kimi.ai", "kimi.moonshot.cn"]
+      "pattern": "kimi.com",
+      "aliases": [
+        "kimi.ai",
+        "kimi.moonshot.cn"
+      ],
+      "keywords": [
+        "Kimi"
+      ],
+      "description": "Moonshot Kimi",
+      "status": "BUILT_IN"
     },
     {
-      "id": "cohere",
-      "name": "Cohere Coral",
+      "id": "chat-z-ai",
+      "name": "Z.ai Chat",
       "type": "WEB",
-      "domains": ["coral.cohere.com", "cohere.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Cohere Coral", "Cohere AI", "coral.cohere.com", "cohere.com"]
+      "pattern": "chat.z.ai",
+      "aliases": [],
+      "keywords": [
+        "Z.ai Chat"
+      ],
+      "description": "Zhipu GLM chat",
+      "status": "BUILT_IN"
     },
     {
-      "id": "jasper",
-      "name": "Jasper AI",
+      "id": "pi-ai",
+      "name": "Pi",
       "type": "WEB",
-      "domains": ["jasper.ai", "app.jasper.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["Jasper AI", "jasper.ai", "app.jasper.ai"]
+      "pattern": "pi.ai",
+      "aliases": [],
+      "keywords": [
+        "Pi, your personal AI"
+      ],
+      "description": "Inflection Pi",
+      "status": "BUILT_IN"
     },
     {
-      "id": "writesonic",
-      "name": "Writesonic",
+      "id": "you-com",
+      "name": "You.com",
       "type": "WEB",
-      "domains": ["writesonic.com", "app.writesonic.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Writesonic", "Chatsonic", "writesonic.com", "app.writesonic.com"]
+      "pattern": "you.com",
+      "aliases": [],
+      "keywords": [
+        "You.com"
+      ],
+      "description": "You.com AI search",
+      "status": "BUILT_IN"
     },
     {
-      "id": "copyai",
-      "name": "Copy.ai",
+      "id": "phind-com",
+      "name": "Phind",
       "type": "WEB",
-      "domains": ["copy.ai", "app.copy.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["Copy.ai", "Copy AI", "copy.ai", "app.copy.ai"]
+      "pattern": "phind.com",
+      "aliases": [],
+      "keywords": [
+        "Phind"
+      ],
+      "description": "Phind AI search for developers",
+      "status": "BUILT_IN"
     },
     {
-      "id": "qwen",
-      "name": "Qwen",
+      "id": "blackbox-ai",
+      "name": "Blackbox AI",
       "type": "WEB",
-      "domains": ["chat.qwenlm.ai", "qwen.ai", "tongyi.aliyun.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Tongyi Qianwen", "Alibaba Qwen", "Qwen", "chat.qwenlm.ai", "qwen.ai"]
+      "pattern": "blackbox.ai",
+      "aliases": [],
+      "keywords": [
+        "BLACKBOX.AI",
+        "Blackbox AI"
+      ],
+      "description": "Blackbox AI coding chat",
+      "status": "BUILT_IN"
     },
     {
-      "id": "elevenlabs",
-      "name": "ElevenLabs",
+      "id": "genspark-ai",
+      "name": "Genspark",
       "type": "WEB",
-      "domains": ["elevenlabs.io", "beta.elevenlabs.io"],
-      "processNames": [],
-      "windowTitleKeywords": ["ElevenLabs", "elevenlabs.io", "Eleven Labs AI"]
+      "pattern": "genspark.ai",
+      "aliases": [],
+      "keywords": [
+        "Genspark"
+      ],
+      "description": "Genspark AI agents",
+      "status": "BUILT_IN"
     },
     {
-      "id": "suno",
-      "name": "Suno AI",
+      "id": "manus-im",
+      "name": "Manus",
       "type": "WEB",
-      "domains": ["suno.com", "suno.ai", "app.suno.ai"],
-      "processNames": [],
-      "windowTitleKeywords": ["Suno AI", "Suno - AI Music", "suno.com", "suno.ai", "app.suno.ai"]
+      "pattern": "manus.im",
+      "aliases": [],
+      "keywords": [
+        "Manus"
+      ],
+      "description": "Manus AI agent",
+      "status": "BUILT_IN"
     },
     {
-      "id": "udio",
-      "name": "Udio",
+      "id": "duck-ai",
+      "name": "Duck.ai",
       "type": "WEB",
-      "domains": ["udio.com", "www.udio.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["Udio | AI Music", "Udio AI", "udio.com"]
+      "pattern": "duck.ai",
+      "aliases": [],
+      "keywords": [
+        "Duck.ai"
+      ],
+      "description": "DuckDuckGo AI chat",
+      "status": "BUILT_IN"
     },
     {
-      "id": "runway",
-      "name": "Runway",
+      "id": "lmarena-ai",
+      "name": "LMArena",
       "type": "WEB",
-      "domains": ["runwayml.com", "app.runwayml.com", "runway.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["RunwayML", "Runway AI", "Gen-2", "Gen-3", "runwayml.com", "runway.com"]
+      "pattern": "lmarena.ai",
+      "aliases": [],
+      "keywords": [
+        "LMArena"
+      ],
+      "description": "LMArena model comparison chat",
+      "status": "BUILT_IN"
     },
     {
-      "id": "gamma",
-      "name": "Gamma App",
+      "id": "quillbot-com",
+      "name": "QuillBot",
       "type": "WEB",
-      "domains": ["gamma.app", "www.gamma.app"],
-      "processNames": [],
-      "windowTitleKeywords": ["Gamma App", "Gamma AI", "gamma.app"]
+      "pattern": "quillbot.com",
+      "aliases": [],
+      "keywords": [
+        "QuillBot",
+        "QuillBot AI"
+      ],
+      "description": "QuillBot AI paraphraser and writer",
+      "status": "BUILT_IN"
     },
     {
-      "id": "chatpdf",
+      "id": "gauthmath-com",
+      "name": "Gauth",
+      "type": "WEB",
+      "pattern": "gauthmath.com",
+      "aliases": [],
+      "keywords": [
+        "Gauth"
+      ],
+      "description": "Gauth AI homework solver",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "chatpdf-com",
       "name": "ChatPDF",
       "type": "WEB",
-      "domains": ["chatpdf.com", "www.chatpdf.com"],
-      "processNames": [],
-      "windowTitleKeywords": ["ChatPDF", "chatpdf.com"]
+      "pattern": "chatpdf.com",
+      "aliases": [],
+      "keywords": [
+        "ChatPDF"
+      ],
+      "description": "Chat with PDF documents",
+      "status": "BUILT_IN"
     },
     {
-      "id": "notion-ai",
+      "id": "consensus-app",
+      "name": "Consensus",
+      "type": "WEB",
+      "pattern": "consensus.app",
+      "aliases": [],
+      "keywords": [
+        "Consensus"
+      ],
+      "description": "Consensus AI research search",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "elicit-com",
+      "name": "Elicit",
+      "type": "WEB",
+      "pattern": "elicit.com",
+      "aliases": [],
+      "keywords": [
+        "Elicit"
+      ],
+      "description": "Elicit AI research assistant",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "typeset-io",
+      "name": "SciSpace",
+      "type": "WEB",
+      "pattern": "typeset.io",
+      "aliases": [
+        "scispace.com"
+      ],
+      "keywords": [
+        "SciSpace"
+      ],
+      "description": "SciSpace AI paper reader",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "jasper-ai",
+      "name": "Jasper",
+      "type": "WEB",
+      "pattern": "jasper.ai",
+      "aliases": [
+        "app.jasper.ai"
+      ],
+      "keywords": [
+        "Jasper"
+      ],
+      "description": "Jasper AI writer",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "copy-ai",
+      "name": "Copy.ai",
+      "type": "WEB",
+      "pattern": "copy.ai",
+      "aliases": [
+        "app.copy.ai"
+      ],
+      "keywords": [
+        "Copy.ai"
+      ],
+      "description": "Copy.ai writer",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "writesonic-com",
+      "name": "Writesonic",
+      "type": "WEB",
+      "pattern": "writesonic.com",
+      "aliases": [],
+      "keywords": [
+        "Writesonic",
+        "Chatsonic"
+      ],
+      "description": "Writesonic / Chatsonic",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "gamma-app",
+      "name": "Gamma",
+      "type": "WEB",
+      "pattern": "gamma.app",
+      "aliases": [],
+      "keywords": [
+        "Gamma"
+      ],
+      "description": "Gamma AI presentations",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "notion-so-ai",
       "name": "Notion AI",
       "type": "WEB",
-      "domains": ["notion.so", "www.notion.so"],
-      "processNames": [],
-      "windowTitleKeywords": ["Notion AI", "notion.so"]
+      "pattern": "notion.so/ai",
+      "aliases": [
+        "notion.com/product/ai"
+      ],
+      "keywords": [
+        "Notion AI"
+      ],
+      "description": "Notion AI (only the Notion AI page, not Notion itself)",
+      "status": "BUILT_IN"
     },
     {
-      "id": "chatgpt-desktop",
+      "id": "bolt-new",
+      "name": "Bolt",
+      "type": "WEB",
+      "pattern": "bolt.new",
+      "aliases": [],
+      "keywords": [
+        "Bolt"
+      ],
+      "description": "StackBlitz Bolt AI app builder",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "lovable-dev",
+      "name": "Lovable",
+      "type": "WEB",
+      "pattern": "lovable.dev",
+      "aliases": [],
+      "keywords": [
+        "Lovable"
+      ],
+      "description": "Lovable AI app builder",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "v0-dev",
+      "name": "v0",
+      "type": "WEB",
+      "pattern": "v0.dev",
+      "aliases": [
+        "v0.app"
+      ],
+      "keywords": [
+        "v0 by Vercel",
+        "v0"
+      ],
+      "description": "Vercel v0 generative UI",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "midjourney-com",
+      "name": "Midjourney",
+      "type": "WEB",
+      "pattern": "midjourney.com",
+      "aliases": [],
+      "keywords": [
+        "Midjourney"
+      ],
+      "description": "Midjourney image generation",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "leonardo-ai",
+      "name": "Leonardo.Ai",
+      "type": "WEB",
+      "pattern": "leonardo.ai",
+      "aliases": [],
+      "keywords": [
+        "Leonardo.Ai"
+      ],
+      "description": "Leonardo image generation",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "ideogram-ai",
+      "name": "Ideogram",
+      "type": "WEB",
+      "pattern": "ideogram.ai",
+      "aliases": [],
+      "keywords": [
+        "Ideogram"
+      ],
+      "description": "Ideogram image generation",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "elevenlabs-io",
+      "name": "ElevenLabs",
+      "type": "WEB",
+      "pattern": "elevenlabs.io",
+      "aliases": [],
+      "keywords": [
+        "ElevenLabs"
+      ],
+      "description": "ElevenLabs AI voice",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "suno-com",
+      "name": "Suno",
+      "type": "WEB",
+      "pattern": "suno.com",
+      "aliases": [],
+      "keywords": [
+        "Suno"
+      ],
+      "description": "Suno AI music",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "udio-com",
+      "name": "Udio",
+      "type": "WEB",
+      "pattern": "udio.com",
+      "aliases": [],
+      "keywords": [
+        "Udio"
+      ],
+      "description": "Udio AI music",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "runwayml-com",
+      "name": "Runway",
+      "type": "WEB",
+      "pattern": "runwayml.com",
+      "aliases": [
+        "app.runwayml.com"
+      ],
+      "keywords": [
+        "Runway"
+      ],
+      "description": "Runway AI video",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "pika-art",
+      "name": "Pika",
+      "type": "WEB",
+      "pattern": "pika.art",
+      "aliases": [],
+      "keywords": [
+        "Pika"
+      ],
+      "description": "Pika AI video",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "lumalabs-ai-dream-machine",
+      "name": "Luma Dream Machine",
+      "type": "WEB",
+      "pattern": "lumalabs.ai/dream-machine",
+      "aliases": [
+        "dream-machine.lumalabs.ai"
+      ],
+      "keywords": [
+        "Dream Machine",
+        "Luma Dream Machine"
+      ],
+      "description": "Luma AI video",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "klingai-com",
+      "name": "Kling AI",
+      "type": "WEB",
+      "pattern": "klingai.com",
+      "aliases": [],
+      "keywords": [
+        "Kling AI"
+      ],
+      "description": "Kling AI video",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "chatgpt",
       "name": "ChatGPT Desktop",
       "type": "APP",
-      "domains": [],
-      "processNames": ["ChatGPT.exe", "ChatGPT", "ChatGPT.app"],
-      "windowTitleKeywords": ["ChatGPT Desktop", "ChatGPT"]
+      "pattern": "ChatGPT.exe",
+      "aliases": [
+        "ChatGPT"
+      ],
+      "keywords": [
+        "ChatGPT Desktop"
+      ],
+      "description": "OpenAI ChatGPT desktop app",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "claude",
+      "name": "Claude (desktop / Claude Code)",
+      "type": "APP",
+      "pattern": "Claude.exe",
+      "aliases": [
+        "Claude"
+      ],
+      "keywords": [
+        "Claude (desktop / Claude Code)"
+      ],
+      "description": "Anthropic Claude desktop app, or the Claude Code agent running",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "perplexity",
+      "name": "Perplexity Desktop",
+      "type": "APP",
+      "pattern": "Perplexity.exe",
+      "aliases": [
+        "Perplexity"
+      ],
+      "keywords": [
+        "Perplexity Desktop"
+      ],
+      "description": "Perplexity desktop app",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "comet",
+      "name": "Perplexity Comet",
+      "type": "APP",
+      "pattern": "comet.exe",
+      "aliases": [
+        "Comet"
+      ],
+      "keywords": [
+        "Perplexity Comet"
+      ],
+      "description": "Perplexity Comet AI browser",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "copilot",
+      "name": "Microsoft Copilot App",
+      "type": "APP",
+      "pattern": "Copilot.exe",
+      "aliases": [
+        "M365Copilot.exe",
+        "Microsoft.Copilot.exe"
+      ],
+      "keywords": [
+        "Microsoft Copilot App"
+      ],
+      "description": "Windows Copilot and Microsoft 365 Copilot apps",
+      "status": "BUILT_IN"
     },
     {
       "id": "cursor",
-      "name": "Cursor AI",
+      "name": "Cursor",
       "type": "APP",
-      "domains": [],
-      "processNames": ["Cursor.exe", "Cursor", "Cursor.app", "cursor"],
-      "windowTitleKeywords": ["Cursor AI", "Cursor"]
+      "pattern": "Cursor.exe",
+      "aliases": [
+        "Cursor"
+      ],
+      "keywords": [
+        "Cursor"
+      ],
+      "description": "Cursor AI code editor",
+      "status": "BUILT_IN"
     },
     {
       "id": "windsurf",
       "name": "Windsurf",
       "type": "APP",
-      "domains": [],
-      "processNames": ["windsurf.exe", "Windsurf", "Windsurf.app", "codeium"],
-      "windowTitleKeywords": ["Windsurf", "Codeium"]
+      "pattern": "Windsurf.exe",
+      "aliases": [
+        "Windsurf"
+      ],
+      "keywords": [
+        "Windsurf"
+      ],
+      "description": "Windsurf AI code editor",
+      "status": "BUILT_IN"
     },
     {
       "id": "antigravity",
-      "name": "Antigravity IDE",
+      "name": "Antigravity",
       "type": "APP",
-      "domains": [],
-      "processNames": ["Antigravity IDE.exe", "Antigravity.exe", "antigravity-ide.exe", "antigravity.exe", "Antigravity IDE", "Antigravity"],
-      "windowTitleKeywords": ["Antigravity IDE", "Antigravity"]
+      "pattern": "Antigravity.exe",
+      "aliases": [
+        "Antigravity IDE.exe",
+        "antigravity-ide.exe"
+      ],
+      "keywords": [
+        "Antigravity"
+      ],
+      "description": "Google Antigravity agentic IDE",
+      "status": "BUILT_IN"
     },
     {
-      "id": "ollama",
+      "id": "trae",
+      "name": "Trae",
+      "type": "APP",
+      "pattern": "Trae.exe",
+      "aliases": [
+        "Trae"
+      ],
+      "keywords": [
+        "Trae"
+      ],
+      "description": "Trae AI IDE",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "kiro",
+      "name": "Kiro",
+      "type": "APP",
+      "pattern": "Kiro.exe",
+      "aliases": [
+        "Kiro"
+      ],
+      "keywords": [
+        "Kiro"
+      ],
+      "description": "Kiro AI IDE",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "void",
+      "name": "Void",
+      "type": "APP",
+      "pattern": "Void.exe",
+      "aliases": [],
+      "keywords": [
+        "Void"
+      ],
+      "description": "Void AI code editor",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "pearai",
+      "name": "PearAI",
+      "type": "APP",
+      "pattern": "PearAI.exe",
+      "aliases": [],
+      "keywords": [
+        "PearAI"
+      ],
+      "description": "PearAI code editor",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "ollama-app",
       "name": "Ollama",
       "type": "APP",
-      "domains": ["localhost:11434"],
-      "processNames": ["ollama.exe", "ollama", "Ollama.app", "ollama_app.exe"],
-      "windowTitleKeywords": ["Ollama", "ollama"]
+      "pattern": "ollama app.exe",
+      "aliases": [
+        "ollama.exe",
+        "ollama"
+      ],
+      "keywords": [
+        "Ollama"
+      ],
+      "description": "Ollama local LLM runtime",
+      "status": "BUILT_IN"
     },
     {
-      "id": "lmstudio",
+      "id": "lm-studio",
       "name": "LM Studio",
       "type": "APP",
-      "domains": [],
-      "processNames": ["LM Studio.exe", "LM Studio", "lmstudio", "lm-studio.exe", "LM Studio.app"],
-      "windowTitleKeywords": ["LM Studio", "lmstudio"]
+      "pattern": "LM Studio.exe",
+      "aliases": [
+        "lms.exe"
+      ],
+      "keywords": [
+        "LM Studio"
+      ],
+      "description": "LM Studio local LLM app",
+      "status": "BUILT_IN"
     },
     {
-      "id": "claude-desktop",
-      "name": "Claude Desktop",
+      "id": "jan",
+      "name": "Jan",
       "type": "APP",
-      "domains": [],
-      "processNames": ["Claude.exe", "Claude", "Claude.app"],
-      "windowTitleKeywords": ["Claude Desktop", "Claude"]
+      "pattern": "Jan.exe",
+      "aliases": [],
+      "keywords": [
+        "Jan"
+      ],
+      "description": "Jan local AI assistant",
+      "status": "BUILT_IN"
     },
     {
-      "id": "deepseek-desktop",
-      "name": "DeepSeek Desktop",
+      "id": "gpt4all",
+      "name": "GPT4All",
       "type": "APP",
-      "domains": [],
-      "processNames": ["DeepSeek.exe", "DeepSeek", "deepseek", "DeepSeek.app"],
-      "windowTitleKeywords": ["DeepSeek Desktop", "DeepSeek Chat", "DeepSeek"]
+      "pattern": "GPT4All.exe",
+      "aliases": [
+        "gpt4all.exe"
+      ],
+      "keywords": [
+        "GPT4All"
+      ],
+      "description": "Nomic GPT4All local chat",
+      "status": "BUILT_IN"
     },
     {
-      "id": "jan-ai",
-      "name": "Jan AI",
+      "id": "msty",
+      "name": "Msty",
       "type": "APP",
-      "domains": [],
-      "processNames": ["jan.exe", "Jan.exe", "Jan", "jan", "jan.app"],
-      "windowTitleKeywords": ["Jan AI", "Jan", "jan.ai"]
+      "pattern": "Msty.exe",
+      "aliases": [
+        "MstyStudio.exe"
+      ],
+      "keywords": [
+        "Msty"
+      ],
+      "description": "Msty local and cloud AI chat",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "anythingllm",
+      "name": "AnythingLLM",
+      "type": "APP",
+      "pattern": "AnythingLLM.exe",
+      "aliases": [],
+      "keywords": [
+        "AnythingLLM"
+      ],
+      "description": "AnythingLLM desktop",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "claude-code-vscode",
+      "name": "Claude Code (VS Code)",
+      "type": "EMBEDDED",
+      "pattern": "embedded:claude-code-vscode",
+      "aliases": [
+        "Code",
+        "Code - Insiders",
+        "VSCodium"
+      ],
+      "keywords": [
+        "Group=Claude Code conversation"
+      ],
+      "description": "Claude Code chat panel open inside VS Code (verified)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "copilot-chat-vscode",
+      "name": "GitHub Copilot Chat (VS Code)",
+      "type": "EMBEDDED",
+      "pattern": "embedded:copilot-chat-vscode",
+      "aliases": [
+        "Code",
+        "Code - Insiders"
+      ],
+      "keywords": [
+        "Edit^Chat Input"
+      ],
+      "description": "VS Code Chat / Copilot panel open (best-effort)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "copilot-chat-visualstudio",
+      "name": "GitHub Copilot Chat (Visual Studio)",
+      "type": "EMBEDDED",
+      "pattern": "embedded:copilot-chat-visualstudio",
+      "aliases": [
+        "devenv"
+      ],
+      "keywords": [
+        "Pane=GitHub Copilot Chat",
+        "Window=GitHub Copilot Chat"
+      ],
+      "description": "Copilot Chat tool window open in Visual Studio (best-effort)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "m365-copilot-office",
+      "name": "Microsoft 365 Copilot (Office)",
+      "type": "EMBEDDED",
+      "pattern": "embedded:m365-copilot-office",
+      "aliases": [
+        "WINWORD",
+        "EXCEL",
+        "POWERPNT",
+        "OUTLOOK",
+        "olk",
+        "ONENOTE"
+      ],
+      "keywords": [
+        "Pane=Copilot"
+      ],
+      "description": "Copilot pane open in Word, Excel, PowerPoint, Outlook or OneNote (best-effort)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "gemini-in-chrome",
+      "name": "Gemini in Chrome",
+      "type": "EMBEDDED",
+      "pattern": "embedded:gemini-in-chrome",
+      "aliases": [
+        "chrome"
+      ],
+      "keywords": [
+        "Button=Close Gemini in Chrome"
+      ],
+      "description": "Gemini side panel open in Google Chrome (verified toolbar button)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "copilot-in-edge",
+      "name": "Copilot in Edge",
+      "type": "EMBEDDED",
+      "pattern": "embedded:copilot-in-edge",
+      "aliases": [
+        "msedge"
+      ],
+      "keywords": [
+        "Document=Copilot"
+      ],
+      "description": "Copilot sidebar open in Microsoft Edge (best-effort)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "brave-leo",
+      "name": "Brave Leo",
+      "type": "EMBEDDED",
+      "pattern": "embedded:brave-leo",
+      "aliases": [
+        "brave"
+      ],
+      "keywords": [
+        "Document=Leo AI"
+      ],
+      "description": "Leo AI side panel open in Brave (best-effort)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "opera-aria",
+      "name": "Opera Aria",
+      "type": "EMBEDDED",
+      "pattern": "embedded:opera-aria",
+      "aliases": [
+        "opera",
+        "opera_gx"
+      ],
+      "keywords": [
+        "Document=Aria"
+      ],
+      "description": "Aria side panel open in Opera (best-effort)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "notion-ai-desktop",
+      "name": "Notion AI (desktop)",
+      "type": "EMBEDDED",
+      "pattern": "embedded:notion-ai-desktop",
+      "aliases": [
+        "Notion"
+      ],
+      "keywords": [
+        "Window=Notion AI"
+      ],
+      "description": "Notion AI page open in the Notion desktop app (best-effort)",
+      "status": "BUILT_IN"
+    },
+    {
+      "id": "acrobat-ai-assistant",
+      "name": "Acrobat AI Assistant",
+      "type": "EMBEDDED",
+      "pattern": "embedded:acrobat-ai-assistant",
+      "aliases": [
+        "Acrobat",
+        "AcroRd32"
+      ],
+      "keywords": [
+        "Pane=AI Assistant"
+      ],
+      "description": "AI Assistant pane open in Adobe Acrobat (best-effort)",
+      "status": "BUILT_IN"
     }
-  ],
-  "heuristicPatterns": {
-    "domainKeywords": ["chatgpt", "gemini", "claude", "copilot", "perplexity", "deepseek", "grok", "mistral", "aistudio", "notebooklm", "elevenlabs", "suno", "udio", "runway", "lovable", "bolt.new"],
-    "titleKeywords": ["AI Chat", "AI Assistant", "AI Copilot", "Generative AI", "LLM Chat", "AI Studio", "AI Workspace"],
-    "processKeywords": ["chatgpt", "cursor", "windsurf", "antigravity", "ollama", "lmstudio", "jan"]
-  }
+  ]
 }

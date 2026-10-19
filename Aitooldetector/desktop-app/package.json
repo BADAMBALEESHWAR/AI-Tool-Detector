@@ -1,16 +1,18 @@
 {
   "name": "ai-monitor-desktop",
-  "version": "1.0.0",
-  "description": "AI Tool Monitor Desktop Application for Educational Institutions",
+  "version": "2.0.0",
+  "description": "SVKM's NMIMS AI Integrity Monitor \u2014 desktop client",
   "main": "./out/main/index.js",
   "scripts": {
     "dev": "electron-vite dev",
     "build": "electron-vite build",
-    "typecheck": "tsc --build tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json",
     "preview": "electron-vite preview",
     "dist:win": "npm run typecheck && npm run build && electron-builder --win",
     "dist:mac": "npm run typecheck && npm run build && electron-builder --mac",
-    "dist:all": "npm run typecheck && npm run build && electron-builder --win --mac"
+    "dist:all": "npm run typecheck && npm run build && electron-builder --win --mac",
+    "test": "vitest run",
+    "native:build": "powershell -NoProfile -ExecutionPolicy Bypass -File native/build.ps1"
   },
   "dependencies": {
     "active-win": "^8.1.0",
@@ -37,19 +39,19 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5.4.5",
-    "vite": "^5.3.3"
+    "vite": "^5.3.3",
+    "vitest": "^2.1.9"
   },
   "build": {
     "appId": "edu.institution.aimonitor",
     "productName": "AI Monitor",
-    "copyright": "Copyright 2024 Educational Institution",
+    "copyright": "Copyright \u00a9 SVKM's NMIMS",
     "icon": "resources/icon",
     "directories": {
       "output": "release"
     },
     "files": [
       "out/**/*",
-      "src/data/**/*",
       "resources/**/*"
     ],
     "asarUnpack": [
@@ -87,13 +89,7 @@
       "allowToChangeInstallationDirectory": false,
       "runAfterFinish": true,
       "installerIcon": "resources/icon.ico",
-      "shortcutName": "AI Monitor"
-    },
-    "extraResources": [
-      {
-        "from": "src/data/",
-        "to": "data/"
-      }
-    ]
+      "shortcutName": "NMIMS AI Integrity Monitor"
+    }
   }
 }
