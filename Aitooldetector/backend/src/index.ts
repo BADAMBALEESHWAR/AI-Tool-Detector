@@ -27,6 +27,10 @@ if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 const app = express();
 const server = http.createServer(app);
 
+// Behind a reverse proxy (Caddy / AWS ALB) req.ip and rate limiting must use
+// X-Forwarded-For; TRUST_PROXY is the number of proxy hops in front of the API.
+if (process.env.TRUST_PROXY) app.set('trust proxy', parseInt(process.env.TRUST_PROXY, 10));
+
 const isOriginAllowed = (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
   if (!origin) return callback(null, true);
   if (

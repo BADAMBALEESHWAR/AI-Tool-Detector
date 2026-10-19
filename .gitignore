@@ -40,3 +40,6 @@ Aitooldetector/desktop-app/dist-types/
 # Large downloadable installer packages
 Aitooldetector/backend/downloads/*.exe
 Aitooldetector/backend/downloads/*.zip
+# Editor backups and stale build logs
+*.bak
+build-errors.txt
