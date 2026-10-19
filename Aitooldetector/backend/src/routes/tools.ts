@@ -5,6 +5,7 @@ import { requireStudent, requireAdmin } from '../middleware/auth';
 import { emitPendingTool, emitToolsUpdated } from '../services/socket';
 import { logger } from '../utils/logger';
 import { applyBuiltinCatalog } from '../utils/catalogSync';
+import { isOwnProduct, recordCandidate } from '../services/candidates';
 import { isBlacklistedSystemProcess } from '../utils/systemBlacklist';
 
 export const toolsRouter = Router();
@@ -297,81 +298,17 @@ toolsRouter.post(
 
     const { pattern, suggestedName, type = 'UNKNOWN', rawIdentifier } = req.body;
 
-    // Reject known system processes immediately — don't pollute the DB
-    if (isBlacklistedSystemProcess(pattern) || isBlacklistedSystemProcess(suggestedName) || isBlacklistedSystemProcess(rawIdentifier)) {
-      res.json({ rejected: true, reason: 'system_process' });
-      return;
-    }
-
     try {
-      const existing = await prisma.aIToolSignature.findFirst({
-        where: { pattern },
-      });
-
-      if (existing) {
-        if (existing.status === 'BUILT_IN' || existing.status === 'APPROVED') {
-          res.json({ alreadyKnown: true, tool: existing });
-          return;
-        }
-        if (existing.status === 'REJECTED') {
-          res.json({ rejected: true });
-          return;
-        }
-        // Pending — increment report count
-        const updated = await prisma.aIToolSignature.update({
-          where: { id: existing.id },
-          data: { reportCount: { increment: 1 } },
-        });
-        emitPendingTool({
-          toolId: updated.id,
-          suggestedName: updated.name,
-          pattern: updated.pattern,
-          reportCount: updated.reportCount,
-          firstDetectedAt: updated.createdAt.toISOString(),
-        });
-        res.json({ alreadyPending: true, tool: updated });
-        return;
-      }
-
-      // Check if auto-flagging unknown tools is enabled
-      const autoFlagSetting = await prisma.appSetting.findUnique({
-        where: { key: 'auto_flag_unknown_tools' },
-      });
-      if (autoFlagSetting && autoFlagSetting.value === 'false') {
-        res.json({ ignored: true, reason: 'auto_flag_disabled' });
-        return;
-      }
-
-      // Auto-Track creates new unlisted tool with PENDING status awaiting Admin Review & Approval
-      const tool = await prisma.aIToolSignature.create({
-        data: {
-          name: suggestedName,
-          type,
-          pattern,
-          keywords: [suggestedName],
-          status: 'PENDING',
-          addedBy: 'auto_detected',
-          reportCount: 1,
-          description: rawIdentifier ? `Auto-detected from: ${rawIdentifier}` : undefined,
-        },
-      });
-
-
-      emitPendingTool({
-        toolId: tool.id,
-        suggestedName: tool.name,
-        pattern: tool.pattern,
-        reportCount: tool.reportCount,
-        firstDetectedAt: tool.createdAt.toISOString(),
-      });
-
-      logger.info(`New AI tool flagged for admin review: ${suggestedName} (${pattern}) [status=PENDING]`);
-      res.status(201).json({ tool });
+      const { outcome, tool } = await recordCandidate({ pattern, name: suggestedName, type, rawIdentifier });
+      if (outcome === 'created') res.status(201).json({ tool });
+      else if (outcome === 'known') res.json({ alreadyKnown: true, tool });
+      else if (outcome === 'pending') res.json({ alreadyPending: true, tool });
+      else if (outcome === 'disabled') res.json({ ignored: true, reason: 'auto_flag_disabled' });
+      else res.json({ rejected: true, reason: 'not_enough_evidence' });
     } catch (err) {
       logger.error('Flag tool error:', err);
       res.status(500).json({ error: 'Failed to flag tool' });
     }
-
   }
 );
 
@@ -383,21 +320,25 @@ toolsRouter.delete('/purge-false-positives', requireAdmin, async (_req: Request,
     });
 
     const toDelete = allTools.filter(
-      t => isBlacklistedSystemProcess(t.pattern) || isBlacklistedSystemProcess(t.name) || (t.pattern === 'google.com' && t.name !== 'Google Gemini')
+      t => isBlacklistedSystemProcess(t.pattern) || isBlacklistedSystemProcess(t.name) || isOwnProduct(t.name, t.pattern) ||
+           (t.pattern === 'google.com' && t.name !== 'Google Gemini')
     );
 
-    if (toDelete.length === 0) {
-      res.json({ message: 'No false positives found', deleted: 0 });
-      return;
+    if (toDelete.length > 0) {
+      await prisma.aIToolSignature.deleteMany({ where: { id: { in: toDelete.map(t => t.id) } } });
+      emitToolsUpdated();
     }
 
-    await prisma.aIToolSignature.deleteMany({
-      where: { id: { in: toDelete.map(t => t.id) } },
-    });
+    // Usage stored for tools that were never in the catalog (older clients' heuristics).
+    const { count: deletedEvents } = await prisma.usageEvent.deleteMany({ where: { toolId: null, isUnknownTool: true } });
 
-    emitToolsUpdated();
-    logger.info(`Purged ${toDelete.length} false-positive tools`);
-    res.json({ message: `Deleted ${toDelete.length} false-positive tools`, deleted: toDelete.length, tools: toDelete });
+    logger.info(`Purged ${toDelete.length} false-positive tools and ${deletedEvents} uncatalogued usage events`);
+    res.json({
+      message: `Deleted ${toDelete.length} false-positive tools and ${deletedEvents} usage records of non-AI items`,
+      deleted: toDelete.length,
+      deletedEvents,
+      tools: toDelete,
+    });
   } catch (err) {
     logger.error('Purge false positives error:', err);
     res.status(500).json({ error: 'Failed to purge' });

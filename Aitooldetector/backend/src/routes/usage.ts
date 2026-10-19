@@ -6,6 +6,7 @@ import { emitUsageEvent } from '../services/socket';
 import { logger } from '../utils/logger';
 import { isBlacklistedSystemProcess } from '../utils/systemBlacklist';
 import { upsertActiveSession, removeActiveSession } from '../services/activeSessions';
+import { recordCandidate } from '../services/candidates';
 
 export const usageRouter = Router();
 
@@ -159,8 +160,19 @@ usageRouter.post(
         select: { name: true, branch: true },
       });
 
-      // If toolId provided, validate it exists
       const { id: resolvedToolId, type: toolType } = await resolveTool(toolId, toolName);
+      if (!resolvedToolId) {
+        // Only catalogued (built-in or admin-approved) AI tools are recorded. Anything else is at
+        // most a suggestion for the admin review queue — e.g. desktop v1 reported any window
+        // title containing "AI", such as this product's own portal.
+        const candidate = await recordCandidate({
+          name: toolName,
+          rawIdentifier,
+          type: browserName === 'Desktop Application' ? 'APP' : 'WEB',
+        });
+        res.status(200).json({ ignored: true, reason: 'not_a_catalogued_ai_tool', candidate: candidate.outcome });
+        return;
+      }
 
       const resolvedBrowser = extractBrowserName(browserName, rawIdentifier, toolType);
 
@@ -328,6 +340,18 @@ usageRouter.post('/ping', requireStudent, async (req: Request, res: Response) =>
       }
 
       const { id: resolvedToolId, type: toolType } = await resolveTool(toolId, toolName);
+      if (!resolvedToolId) {
+        // Only catalogued (built-in or admin-approved) AI tools are recorded. Anything else is at
+        // most a suggestion for the admin review queue — e.g. desktop v1 reported any window
+        // title containing "AI", such as this product's own portal.
+        const candidate = await recordCandidate({
+          name: toolName,
+          rawIdentifier,
+          type: browserName === 'Desktop Application' ? 'APP' : 'WEB',
+        });
+        res.status(200).json({ ignored: true, reason: 'not_a_catalogued_ai_tool', candidate: candidate.outcome });
+        return;
+      }
 
       const resolvedBrowser = extractBrowserName(browserName, rawIdentifier, toolType);
       const sessionKey = `${sapId}:${toolName}:${resolvedBrowser}`;
