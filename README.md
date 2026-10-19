@@ -362,17 +362,32 @@ The Electron app launches showing the **AI Monitor Student Sign-In** screen.
 
 ## 🧠 AI Tool Detection Engine
 
-The monitoring system employs a layered, multi-tier detection architecture:
+Detection is catalog-driven and deliberately precise: only real AI products are
+counted, and the evidence for every detection is recorded (never any content).
 
-### 1. Pre-Seeded Catalog (35+ Built-In Signatures)
-- **Web AI Assistants**: ChatGPT, Claude, Google Gemini, Microsoft Copilot, Perplexity AI, DeepSeek, Grok, Mistral Le Chat, Poe, Character.AI, HuggingFace Chat, Google AI Studio, NotebookLM, Bolt.new, Lovable, v0, Blackbox AI, Phind, You.com, Pi AI, Meta AI, Kimi, Cohere Coral, Jasper, Copy.ai, Qwen.
-- **Desktop Apps & Developer Tools**: ChatGPT Desktop, GitHub Copilot (VS Code / JetBrains), Cursor AI, Windsurf / Codeium, Ollama, LM Studio.
+### 1. The AI catalog (v3, 78 entries)
+`backend/src/utils/aiToolsPreset.ts` is the single source of truth. Admins can
+edit it from the dashboard; the server upgrades its built-in tools on start-up
+when `AI_CATALOG_VERSION` rises, and `npm run catalog:export` writes the copy
+bundled into the desktop app (a test fails if they drift).
 
-### 2. Multi-Tier Desktop Detection (`desktop-app`)
-- **Process Enumeration (`ps-list`)**: Scans running system processes against recognized executable patterns (`ChatGPT.exe`, `cursor.exe`, `ollama.exe`).
-- **Active Window Inspection (`active-win`)**: Identifies browser tab titles and standalone desktop app titles matching AI signatures.
-- **Asynchronous Win32 PowerShell Scan**: Performs lightweight, non-blocking scans of open window titles without freezing the UI.
-- **System Whitelist Protection**: Ignores system binaries, background OS tasks, and productivity apps (`explorer.exe`, `System`, `svchost.exe`).
+| Kind | Examples | How it is recognised |
+|---|---|---|
+| **Web** (50) | ChatGPT, Gemini, Claude, Copilot, Perplexity, DeepSeek, QuillBot, NotebookLM, Midjourney… | The browser tab title's site segment (`Fix CSS - Claude`) or a domain; titles from YouTube, search engines, Wikipedia, news… never count |
+| **App** (18) | ChatGPT Desktop, Claude, Cursor, Windsurf, Antigravity, Ollama, LM Studio, Jan… | Executable name |
+| **In-app AI** (10) | Copilot in Word/Excel/PowerPoint/Outlook, Claude Code and Copilot Chat in VS Code, Copilot Chat in Visual Studio, Gemini in Chrome, Copilot in Edge, Brave Leo, Opera Aria, Acrobat AI Assistant | A UI element that exists only while the AI panel is **open**, e.g. `Group=Claude Code conversation` |
+
+### 2. Desktop detection (`desktop-app/src/main`)
+- **`TabScanner`** (`resources/bin/TabScanner.cs`, built by `native/build.ps1`): fast mode lists
+  windows and browser tab-strip titles (tabs drawn by web pages are ignored); deep mode
+  (every 10 s) checks the in-app AI markers and prints only matched rule ids — on-screen
+  text never leaves the scanner.
+- **`detection/engine.ts`**: pure, unit-tested matching of a scan snapshot against the catalog.
+- **`monitor.ts`**: sessions (start, 2-minute live ping, end after 7 s grace) reported to the API.
+- Unknown `.ai` sites or `*gpt*`/`*llm*` executables are *suggested* to admins for review,
+  never recorded as usage.
+- Tests: `npm test` (54 cases built from real tab titles and known false positives) and an
+  opt-in live check of the current desktop: `LIVE_SCAN=1 npx vitest run src/main/detection/live.test.ts`.
 
 ### 3. Browser Heuristic Detection (`extension`)
 - **Domain Matching**: Direct regex matching on full URLs and known subdomains.

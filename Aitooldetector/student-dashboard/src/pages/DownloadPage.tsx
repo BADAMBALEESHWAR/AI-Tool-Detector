@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { API_BASE } from '../lib/config';
-import { Download, Monitor, Puzzle, CheckCircle2, ArrowRight, ExternalLink, AlertCircle } from 'lucide-react';
+import { DOWNLOADS_BASE } from '../lib/config';
+import { Download, Monitor, Puzzle, CheckCircle2, ArrowRight, AlertCircle } from 'lucide-react';
 
 type OS = 'windows' | 'macos';
 
@@ -49,7 +49,7 @@ const EXTENSION_LINKS = [
   { browser: 'Chrome / Brave', icon: '🌐', url: '#chrome-ext', note: 'Install from Chrome Web Store' },
   { browser: 'Microsoft Edge', icon: '🔷', url: '#edge-ext', note: 'Install from Edge Add-ons' },
   { browser: 'Firefox', icon: '🦊', url: '#firefox-ext', note: 'Install from Firefox Add-ons' },
-  { browser: 'Manual (Developer Mode)', icon: '⚙️', url: `${API_BASE}/downloads/extension.zip`, note: 'Load as unpacked extension' },
+  { browser: 'Manual (Developer Mode)', icon: '⚙️', url: `${DOWNLOADS_BASE}/extension.zip`, note: 'Load as unpacked extension' },
 ];
 
 export default function DownloadPage() {
@@ -96,7 +96,7 @@ export default function DownloadPage() {
             {os === 'windows' && (
               <a
                 id="download-windows-zip"
-                href={`${API_BASE}/downloads/AI-Monitor-Windows.zip`}
+                href={`${DOWNLOADS_BASE}/AI-Monitor-Windows.zip`}
                 download="AI-Monitor-Windows.zip"
                 className="btn-primary flex items-center justify-center gap-2 text-xs py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-paper shadow-lg shadow-emerald-950/30 font-semibold"
                 title="Download as ZIP archive (Recommended: never blocked by Chrome or browser filters)"
@@ -107,7 +107,7 @@ export default function DownloadPage() {
             )}
             <a
               id={`download-${os}`}
-              href={`${API_BASE}/downloads/ai-monitor-${os === 'windows' ? 'Setup.exe' : 'Installer.dmg'}`}
+              href={`${DOWNLOADS_BASE}/ai-monitor-${os === 'windows' ? 'Setup.exe' : 'Installer.dmg'}`}
               download={os === 'windows' ? 'AI-Monitor-Setup.exe' : 'AI-Monitor.dmg'}
               className="btn-secondary flex items-center justify-center gap-2 text-xs py-2 px-3 border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white shrink-0"
             >
@@ -190,10 +190,7 @@ export default function DownloadPage() {
         </div>
         <div className="mt-4 p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl">
           <p className="text-xs text-gray-400">
-            <span className="text-brand-300 font-medium">Enterprise deployment:</span> If your institution uses Google Admin Console, Intune, or Group Policy (GPO), ask your IT admin to push the extension automatically. See the{' '}
-            <a href={`${API_BASE}/docs/deployment`} className="text-brand-400 hover:underline inline-flex items-center gap-1">
-              deployment guide <ExternalLink size={10} />
-            </a>.
+            <span className="text-brand-300 font-medium">Enterprise deployment:</span> If your institution uses Google Admin Console, Intune, or Group Policy (GPO), ask your IT admin to push the extension to all browsers automatically.
           </p>
         </div>
       </div>

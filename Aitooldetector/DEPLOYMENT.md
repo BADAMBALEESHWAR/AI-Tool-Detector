@@ -35,6 +35,14 @@ and can only touch the resources above. No AWS keys are stored in GitHub.
 
 `.github/workflows/ci.yml` builds every app and Dockerfile on each push and pull request.
 
+### Release a new desktop app version
+
+1. Bump `version` in `Aitooldetector/desktop-app/package.json` and push.
+2. **Actions → Release desktop app → Run workflow.** It builds the Windows installer on
+   a Windows runner (tests included) and publishes `ai-monitor-Setup.exe`,
+   `AI-Monitor-Windows.zip` and `extension.zip` to
+   `https://student-dashboard.tooldetect.in/downloads/` — the links on the student portal.
+
 ### Roll back
 
 Re-run an older successful **Deploy to AWS** run (Actions → the run → *Re-run all jobs*).
@@ -62,7 +70,7 @@ every time it runs. Installers served by `/downloads` go in `backend/downloads/`
 |---|---|
 | Deploy directory | `/opt/ai-monitor`: `docker-compose.prod.yml`, `.env`, `uploads/`, `logs/`, `downloads/` |
 | `.env` | `DATABASE_URL` (RDS), the three JWT secrets, `FRONTEND_URL` / `ADMIN_URL` / `STUDENT_URL` (CORS origins), `ECR_REGISTRY` |
-| Installers | `/opt/ai-monitor/downloads/` (mounted read-only) |
+| Installers | Served from CloudFront `student-dashboard.tooldetect.in/downloads/` (see "Release a new desktop app version"); `/opt/ai-monitor/downloads/` only backs the older `/api/downloads` links |
 | Image pulls | ECR credential helper using the instance role (`AmazonEC2ContainerRegistryReadOnly`) |
 | Memory | t3.micro + 1 GB swap file |
 

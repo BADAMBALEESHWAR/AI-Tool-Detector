@@ -102,6 +102,8 @@ jobs:
           - app: student-dashboard
             bucket: student-dashboard.tooldetect.in
             distribution: EMHQSVFRFZK74
+            # Installers are served by CloudFront (published by release-desktop.yml).
+            downloads_url: https://student-dashboard.tooldetect.in/downloads
     defaults:
       run:
         working-directory: Aitooldetector/${{ matrix.app }}
@@ -121,6 +123,7 @@ jobs:
         env:
           VITE_API_URL: ${{ env.API_URL }}/api
           VITE_SOCKET_URL: ${{ env.API_URL }}
+          VITE_DOWNLOADS_URL: ${{ matrix.downloads_url }}
 
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -132,7 +135,8 @@ jobs:
           # Hashed bundles never change, so browsers may cache them for a year.
           aws s3 sync dist/assets "s3://${{ matrix.bucket }}/assets" --cache-control "public,max-age=31536000,immutable"
           # Everything else (index.html, icons) must be revalidated on each visit.
-          aws s3 sync dist "s3://${{ matrix.bucket }}" --delete --exclude "assets/*" --cache-control "no-cache"
+          # downloads/ holds the published installers and must survive --delete.
+          aws s3 sync dist "s3://${{ matrix.bucket }}" --delete --exclude "assets/*" --exclude "downloads/*" --cache-control "no-cache"
 
       - name: Refresh CloudFront
         run: aws cloudfront create-invalidation --distribution-id "${{ matrix.distribution }}" --paths "/*" --query Invalidation.Id --output text

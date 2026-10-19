@@ -1,0 +1,64 @@
+# Builds the Windows desktop installer and publishes it, with the browser
+# extension, to https://student-dashboard.tooldetect.in/downloads/ (the links
+# on the student portal). Run manually: Actions → Release desktop app → Run workflow.
+# Bump "version" in Aitooldetector/desktop-app/package.json before releasing.
+name: Release desktop app
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ap-south-1
+  AWS_ROLE_ARN: arn:aws:iam::408945531212:role/ai-tool-detector-github-deploy
+  BUCKET: student-dashboard.tooldetect.in
+  DISTRIBUTION: EMHQSVFRFZK74
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: Aitooldetector/desktop-app/package-lock.json
+
+      - name: Build and test
+        working-directory: Aitooldetector/desktop-app
+        run: |
+          npm ci
+          npm run native:build
+          npm run typecheck
+          npm test
+          npx electron-vite build
+          npx electron-builder --win --x64 --publish never
+
+      - name: Package downloads
+        run: |
+          $version = (Get-Content Aitooldetector/desktop-app/package.json | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Force downloads | Out-Null
+          Copy-Item "Aitooldetector/desktop-app/release/AI Monitor Setup $version.exe" downloads/ai-monitor-Setup.exe
+          Compress-Archive -Path downloads/ai-monitor-Setup.exe -DestinationPath downloads/AI-Monitor-Windows.zip
+          Compress-Archive -Path Aitooldetector/extension/* -DestinationPath downloads/extension.zip
+          Get-ChildItem downloads | Format-Table Name, Length
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+
+      - name: Publish
+        run: |
+          aws s3 cp downloads/ai-monitor-Setup.exe "s3://$env:BUCKET/downloads/ai-monitor-Setup.exe" --content-type application/octet-stream --content-disposition "attachment; filename=AI-Monitor-Setup.exe" --cache-control "no-cache"
+          aws s3 cp downloads/AI-Monitor-Windows.zip "s3://$env:BUCKET/downloads/AI-Monitor-Windows.zip" --content-type application/zip --cache-control "no-cache"
+          aws s3 cp downloads/extension.zip "s3://$env:BUCKET/downloads/extension.zip" --content-type application/zip --cache-control "no-cache"
+          aws cloudfront create-invalidation --distribution-id $env:DISTRIBUTION --paths "/downloads/*"
