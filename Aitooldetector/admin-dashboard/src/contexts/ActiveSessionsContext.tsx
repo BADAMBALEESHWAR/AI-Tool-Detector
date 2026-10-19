@@ -56,7 +56,7 @@ export function ActiveSessionsProvider({ children }: { children: React.ReactNode
   // Global socket listener ensuring real-time sync across all dashboard views
   useEffect(() => {
     if (!token) return;
-    const socket: Socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001', {
+    const socket: Socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
       auth: { token, role: 'admin' },
     });
 

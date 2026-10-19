@@ -73,7 +73,7 @@ export default function ProfilePage() {
       {/* Profile card */}
       <div className="glass-card p-6">
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-600 to-violet-600 flex items-center justify-center text-white text-2xl font-bold shadow-xl shadow-brand-900/30">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-600 to-violet-600 flex items-center justify-center text-paper text-2xl font-bold shadow-xl shadow-brand-900/30">
             {student?.name?.[0]?.toUpperCase() || 'S'}
           </div>
           <div>

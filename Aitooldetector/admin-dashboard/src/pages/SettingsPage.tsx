@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { api } from '../lib/api';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
+import AddAdminCard from '../components/AddAdminCard';
 import toast from 'react-hot-toast';
 import { Save, Clock, Sparkles, Zap, Shield, Eye, Bot, Radio } from 'lucide-react';
 
@@ -19,7 +20,7 @@ interface AppSettings {
 }
 
 export default function SettingsPage() {
-  const { token } = useAdminAuth();
+  const { token, admin } = useAdminAuth();
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [saving, setSaving] = useState(false);
   const [socketConnected, setSocketConnected] = useState(false);
@@ -49,7 +50,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001', {
+    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
       auth: { token, role: 'admin' },
     });
     socketRef.current = socket;
@@ -105,7 +106,7 @@ export default function SettingsPage() {
   };
 
   if (!settings) return (
-    <div className="flex items-center justify-center p-16 text-zinc-700">
+    <div className="flex items-center justify-center p-16 text-zinc-600">
       <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mr-2" />
     </div>
   );
@@ -164,7 +165,7 @@ export default function SettingsPage() {
             onClick={() => toggleSetting('auto_track_ai_tools')}
             className={`relative w-11 h-6 rounded-full transition-all cursor-pointer ${settings.auto_track_ai_tools === 'true' ? 'bg-violet-600 shadow-lg shadow-violet-600/30' : 'bg-zinc-700'}`}
           >
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${settings.auto_track_ai_tools === 'true' ? 'left-6' : 'left-1'}`} />
+            <div className={`absolute top-1 w-4 h-4 bg-paper rounded-full shadow transition-all ${settings.auto_track_ai_tools === 'true' ? 'left-6' : 'left-1'}`} />
           </button>
         </div>
 
@@ -183,7 +184,7 @@ export default function SettingsPage() {
             onClick={() => toggleSetting('instant_detection_enabled')}
             className={`relative w-11 h-6 rounded-full transition-all cursor-pointer ${settings.instant_detection_enabled === 'true' ? 'bg-amber-600' : 'bg-zinc-700'}`}
           >
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${settings.instant_detection_enabled === 'true' ? 'left-6' : 'left-1'}`} />
+            <div className={`absolute top-1 w-4 h-4 bg-paper rounded-full shadow transition-all ${settings.instant_detection_enabled === 'true' ? 'left-6' : 'left-1'}`} />
           </button>
         </div>
 
@@ -202,7 +203,7 @@ export default function SettingsPage() {
             onClick={() => toggleSetting('auto_flag_unknown_tools')}
             className={`relative w-11 h-6 rounded-full transition-all cursor-pointer ${settings.auto_flag_unknown_tools === 'true' ? 'bg-blue-600' : 'bg-zinc-700'}`}
           >
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${settings.auto_flag_unknown_tools === 'true' ? 'left-6' : 'left-1'}`} />
+            <div className={`absolute top-1 w-4 h-4 bg-paper rounded-full shadow transition-all ${settings.auto_flag_unknown_tools === 'true' ? 'left-6' : 'left-1'}`} />
           </button>
         </div>
 
@@ -221,7 +222,7 @@ export default function SettingsPage() {
             onClick={() => toggleSetting('auto_approve_flagged_tools')}
             className={`relative w-11 h-6 rounded-full transition-all cursor-pointer ${settings.auto_approve_flagged_tools === 'true' ? 'bg-purple-600' : 'bg-zinc-700'}`}
           >
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${settings.auto_approve_flagged_tools === 'true' ? 'left-6' : 'left-1'}`} />
+            <div className={`absolute top-1 w-4 h-4 bg-paper rounded-full shadow transition-all ${settings.auto_approve_flagged_tools === 'true' ? 'left-6' : 'left-1'}`} />
           </button>
         </div>
       </div>
@@ -247,7 +248,7 @@ export default function SettingsPage() {
             onClick={() => toggleSetting('monitoring_enabled')}
             className={`relative w-11 h-6 rounded-full transition-all cursor-pointer ${settings.monitoring_enabled === 'true' ? 'bg-violet-600' : 'bg-zinc-700'}`}
           >
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${settings.monitoring_enabled === 'true' ? 'left-6' : 'left-1'}`} />
+            <div className={`absolute top-1 w-4 h-4 bg-paper rounded-full shadow transition-all ${settings.monitoring_enabled === 'true' ? 'left-6' : 'left-1'}`} />
           </button>
         </div>
 
@@ -260,7 +261,7 @@ export default function SettingsPage() {
             onClick={() => toggleSetting('monitoring_all_hours')}
             className={`relative w-11 h-6 rounded-full transition-all cursor-pointer ${settings.monitoring_all_hours === 'true' ? 'bg-violet-600' : 'bg-zinc-700'}`}
           >
-            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${settings.monitoring_all_hours === 'true' ? 'left-6' : 'left-1'}`} />
+            <div className={`absolute top-1 w-4 h-4 bg-paper rounded-full shadow transition-all ${settings.monitoring_all_hours === 'true' ? 'left-6' : 'left-1'}`} />
           </button>
         </div>
 
@@ -308,12 +309,14 @@ export default function SettingsPage() {
         <button
           onClick={() => saveSettings()}
           disabled={saving}
-          className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/25 transition-all cursor-pointer"
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-paper shadow-lg shadow-violet-600/25 transition-all cursor-pointer"
         >
           <Save size={15} />
           {saving ? 'Saving Settings...' : 'Save All Settings'}
         </button>
       </div>
+
+      {admin?.role === 'superadmin' && <AddAdminCard />}
     </div>
   );
 }

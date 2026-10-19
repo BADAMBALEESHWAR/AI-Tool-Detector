@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import toast from 'react-hot-toast';
-import { Shield, Eye, EyeOff, Cpu, Lock } from 'lucide-react';
+import { Shield, Eye, EyeOff, Lock } from 'lucide-react';
+import AuthShell from '../components/AuthShell';
 
 type Tab = 'signin' | 'signup';
 
@@ -79,33 +80,25 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background gradient orbs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-violet-600/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-900/10 rounded-full blur-3xl" />
-      </div>
-
-      <div className="w-full max-w-md animate-fade-in relative z-10">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-brand-600 to-violet-600 rounded-2xl shadow-xl shadow-brand-900/50 mb-4">
-            <Cpu className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-bold text-white">AI Monitor</h1>
-          <p className="text-gray-400 mt-1 text-sm">Student Portal · Educational AI Tracking</p>
-        </div>
-
+    <AuthShell
+      subtitle="Student Portal"
+      heroTitle="Student Portal"
+      heroText="Sign in with your SAP ID to set up the monitoring app on your device and see exactly what is recorded about your AI tool usage."
+      points={[
+        'Only metadata is recorded: tool name, time and duration',
+        'Your full personal usage history is visible to you',
+        'Never captures prompts, responses, keystrokes or screenshots',
+      ]}
+    >
         {/* Card */}
-        <div className="glass-card p-8">
+        <div className="glass-card p-8 shadow-lg border-t-4 border-t-nmims-600">
           {/* Tabs */}
-          <div className="flex gap-1 bg-white/5 rounded-xl p-1 mb-8">
+          <div className="flex gap-1 bg-gray-800 rounded-md p-1 mb-8 border border-gray-700">
             <button
               onClick={() => setTab('signin')}
               className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
                 tab === 'signin'
-                  ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/40'
+                  ? 'bg-brand-600 text-paper shadow-lg shadow-brand-900/40'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -115,7 +108,7 @@ export default function AuthPage() {
               onClick={() => setTab('signup')}
               className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all duration-200 ${
                 tab === 'signup'
-                  ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/40'
+                  ? 'bg-brand-600 text-paper shadow-lg shadow-brand-900/40'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -274,10 +267,9 @@ export default function AuthPage() {
 
           <div className="mt-6 pt-6 border-t border-white/5 flex items-center gap-2 text-xs text-gray-600">
             <Lock size={12} />
-            <span>Secured with end-to-end encryption · Metadata only · No content capture</span>
+            <span>Secure sign-in · Metadata only · No content capture</span>
           </div>
         </div>
-      </div>
-    </div>
+    </AuthShell>
   );
 }

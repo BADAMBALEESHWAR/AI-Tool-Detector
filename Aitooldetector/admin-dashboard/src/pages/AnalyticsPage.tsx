@@ -14,10 +14,13 @@ interface Analytics {
   dailyUsage: { date: string; count: number }[];
 }
 
-const CHART_COLORS = ['#7c3aed', '#2563eb', '#0891b2', '#059669', '#d97706', '#dc2626'];
-const DARK_TOOLTIP_STYLE = {
-  contentStyle: { background: '#18181b', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, fontSize: 12, color: '#a1a1aa' },
-  cursor: { fill: 'rgba(255,255,255,0.03)' },
+// NMIMS red leads; the rest are distinct hues that hold up on a white card.
+const NMIMS_RED = '#d2232a';
+const AXIS_COLOR = '#5d5d5d';
+const CHART_COLORS = [NMIMS_RED, '#231f20', '#2563eb', '#0d9488', '#d97706', '#9ca3af'];
+const TOOLTIP_STYLE = {
+  contentStyle: { background: '#ffffff', border: '1px solid #e2e2e6', borderRadius: 8, fontSize: 12, color: '#231f20', boxShadow: '0 4px 16px rgba(35,31,32,0.10)' },
+  cursor: { fill: 'rgba(210,35,42,0.06)' },
 };
 
 export default function AnalyticsPage() {
@@ -30,7 +33,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full py-32 text-zinc-700">
+      <div className="flex items-center justify-center h-full py-32 text-zinc-600">
         <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mr-3" />
         Loading analytics...
       </div>
@@ -67,10 +70,10 @@ export default function AnalyticsPage() {
           <h2 className="section-header mb-4"><TrendingUp size={16} className="text-violet-400" />Daily Events (Last 30 Days)</h2>
           <ResponsiveContainer width="100%" height={200}>
             <LineChart data={data.dailyUsage}>
-              <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#52525b' }} tickFormatter={v => v.slice(5)} />
-              <YAxis tick={{ fontSize: 11, fill: '#52525b' }} />
-              <Tooltip {...DARK_TOOLTIP_STYLE} />
-              <Line type="monotone" dataKey="count" stroke="#7c3aed" strokeWidth={2} dot={false} />
+              <XAxis dataKey="date" tick={{ fontSize: 11, fill: AXIS_COLOR }} tickFormatter={v => v.slice(5)} />
+              <YAxis tick={{ fontSize: 11, fill: AXIS_COLOR }} />
+              <Tooltip {...TOOLTIP_STYLE} />
+              <Line type="monotone" dataKey="count" stroke={NMIMS_RED} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -83,10 +86,10 @@ export default function AnalyticsPage() {
             <h2 className="section-header mb-4"><BarChart2 size={16} className="text-blue-400" />Top AI Tools</h2>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={data.topTools.slice(0, 8)} layout="vertical">
-                <XAxis type="number" tick={{ fontSize: 11, fill: '#52525b' }} />
-                <YAxis type="category" dataKey="toolName" tick={{ fontSize: 10, fill: '#a1a1aa' }} width={100} />
-                <Tooltip {...DARK_TOOLTIP_STYLE} />
-                <Bar dataKey="eventCount" fill="#7c3aed" radius={[0, 4, 4, 0]} />
+                <XAxis type="number" tick={{ fontSize: 11, fill: AXIS_COLOR }} />
+                <YAxis type="category" dataKey="toolName" tick={{ fontSize: 10, fill: AXIS_COLOR }} width={100} />
+                <Tooltip {...TOOLTIP_STYLE} />
+                <Bar dataKey="eventCount" fill={NMIMS_RED} radius={[0, 4, 4, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -111,7 +114,7 @@ export default function AnalyticsPage() {
                     <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip {...DARK_TOOLTIP_STYLE} />
+                <Tooltip {...TOOLTIP_STYLE} />
               </PieChart>
             </ResponsiveContainer>
           </div>

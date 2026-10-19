@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 import {
   Wrench, CheckCircle2, XCircle, Shield, AlertCircle, Plus, Search,
   RefreshCw, Trash2, Edit3, Globe, Monitor, Sparkles, X, Check, Zap, Bot,
-  Radio, Clock, CheckCheck, Flame
+  Radio, Clock, CheckCheck
 } from 'lucide-react';
 
 
@@ -48,7 +48,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 export default function ToolsPage() {
   const { token } = useAdminAuth();
-  const { activeSessions, liveCount, getToolActiveCount, getToolActiveSessions } = useActiveSessions();
+  const { liveCount, getToolActiveCount } = useActiveSessions();
   const [tools, setTools] = useState<Tool[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ export default function ToolsPage() {
   const [autoTrack, setAutoTrack] = useState<boolean>(true);
   const [togglingAutoTrack, setTogglingAutoTrack] = useState<boolean>(false);
   const [socketConnected, setSocketConnected] = useState<boolean>(false);
-  const [recentDetectionsCount, setRecentDetectionsCount] = useState<number>(0);
+  const [, setRecentDetectionsCount] = useState<number>(0);
   const [highlightPendingId, setHighlightPendingId] = useState<string | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -126,7 +126,7 @@ export default function ToolsPage() {
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001', {
+    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
       auth: { token, role: 'admin' },
     });
     socketRef.current = socket;
@@ -387,7 +387,7 @@ export default function ToolsPage() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={openAddModal}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/20 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-paper shadow-lg shadow-violet-600/20 transition-all cursor-pointer"
           >
             <Plus size={14} />
             Add AI Tool
@@ -493,7 +493,7 @@ export default function ToolsPage() {
               title={autoTrack ? 'Click to pause auto-tracking' : 'Click to enable auto-tracking'}
             >
               <div
-                className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-all ${
+                className={`absolute top-1 w-4 h-4 bg-paper rounded-full shadow transition-all ${
                   autoTrack ? 'left-6' : 'left-1'
                 }`}
               />
@@ -529,7 +529,7 @@ export default function ToolsPage() {
               <button
                 onClick={approveAllPending}
                 disabled={actionLoading === 'approve-all'}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-paper shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"
               >
                 <CheckCheck size={14} />
                 Approve All ({pendingTools.length})
@@ -595,7 +595,7 @@ export default function ToolsPage() {
                     <button
                       onClick={() => approve(tool.id, tool.name)}
                       disabled={!!actionLoading}
-                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
+                      className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-paper shadow-md shadow-emerald-600/20 transition-all cursor-pointer"
                     >
                       <CheckCircle2 size={13} />
                       Approve
@@ -857,14 +857,14 @@ export default function ToolsPage() {
                               <button
                                 onClick={() => approve(tool.id, tool.name)}
                                 disabled={!!actionLoading}
-                                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1 cursor-pointer transition-all shadow"
+                                className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-paper flex items-center gap-1 cursor-pointer transition-all shadow"
                               >
                                 <CheckCircle2 size={12} /> Approve
                               </button>
                               <button
                                 onClick={() => reject(tool.id, tool.name)}
                                 disabled={!!actionLoading}
-                                className="px-2 py-1 rounded-lg text-xs font-semibold bg-red-600 hover:bg-red-500 text-white flex items-center gap-1 cursor-pointer transition-all"
+                                className="px-2 py-1 rounded-lg text-xs font-semibold bg-red-600 hover:bg-red-500 text-paper flex items-center gap-1 cursor-pointer transition-all"
                               >
                                 <XCircle size={12} /> Reject
                               </button>
@@ -1021,7 +1021,7 @@ export default function ToolsPage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/20 transition-all cursor-pointer"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-paper shadow-lg shadow-violet-600/20 transition-all cursor-pointer"
                 >
                   {saving ? (
                     <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />

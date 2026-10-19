@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAdminAuth } from '../contexts/AdminAuthContext';
 import toast from 'react-hot-toast';
-import { ShieldCheck, Eye, EyeOff, Cpu, UserPlus, LogIn, CheckCircle2, User, Mail, Lock } from 'lucide-react';
+import AuthShell from '../components/AuthShell';
+import { ShieldCheck, Eye, EyeOff, UserPlus, LogIn, CheckCircle2, User, Mail, Lock } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { api } from '../lib/api';
 
 interface LoginPageProps {
   initialTab?: 'signin' | 'signup';
@@ -43,6 +45,15 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
 
   // Success message when redirected to Sign In
   const [justRegisteredMsg, setJustRegisteredMsg] = useState<string | null>(null);
+
+  // Self-service sign-up exists only for creating the first (super)admin.
+  const [setupRequired, setSetupRequired] = useState(false);
+  useEffect(() => {
+    api.get('/auth/admin/setup-status')
+      .then(res => setSetupRequired(Boolean(res.data?.setupRequired)))
+      .catch(() => setSetupRequired(false));
+  }, []);
+  const activeTab = setupRequired ? tab : 'signin';
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,6 +99,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
     try {
       const res = await signup(name.trim(), signUpEmail.trim(), signUpPassword);
       toast.success(res.message || 'Admin account created successfully!');
+      setSetupRequired(false);
       
       // Pre-fill email in Sign In form and reset passwords
       setSignInEmail(signUpEmail.trim());
@@ -109,26 +121,20 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background ambient lighting */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[450px] bg-violet-900/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[300px] bg-purple-900/10 rounded-full blur-3xl" />
-      </div>
-
-      <div className="w-full max-w-md animate-fade-in relative z-10">
-        {/* Brand Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-700 rounded-2xl shadow-xl shadow-violet-900/40 mb-3 border border-violet-400/20">
-            <Cpu className="w-7 h-7 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">AI Monitor</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">Institutional Administrator Console</p>
-        </div>
-
+    <AuthShell
+      subtitle="Admin Console"
+      heroTitle="Administrator Console"
+      heroText="Monitor generative-AI tool usage across student devices during examinations and assessments, review newly detected tools, and manage the student roster."
+      points={[
+        'Live feed of AI tool activity from desktop app and browser extension',
+        'Approve or reject newly discovered AI tools institution-wide',
+        'Filterable audit logs with CSV export',
+      ]}
+    >
         {/* Card Container */}
-        <div className="admin-card p-7 shadow-2xl shadow-black/60 border border-white/10 backdrop-blur-md">
-          {/* Segmented Tab Switcher */}
+        <div className="admin-card p-7 shadow-lg border-t-4 border-t-nmims-600">
+          {/* Segmented Tab Switcher (first-run setup only) */}
+          {setupRequired && (
           <div className="flex bg-zinc-800/80 p-1 rounded-xl mb-6 border border-white/5">
             <button
               type="button"
@@ -138,7 +144,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all ${
                 tab === 'signin'
-                  ? 'bg-violet-600 text-white shadow-md shadow-violet-900/30'
+                  ? 'bg-violet-600 text-paper shadow-md shadow-violet-900/30'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -153,7 +159,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
               }}
               className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-semibold rounded-lg transition-all ${
                 tab === 'signup'
-                  ? 'bg-violet-600 text-white shadow-md shadow-violet-900/30'
+                  ? 'bg-violet-600 text-paper shadow-md shadow-violet-900/30'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
@@ -161,9 +167,10 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
               Create Account
             </button>
           </div>
+          )}
 
           {/* Registration Success Banner */}
-          {justRegisteredMsg && tab === 'signin' && (
+          {justRegisteredMsg && activeTab === 'signin' && (
             <div className="mb-5 p-3.5 bg-emerald-500/10 border border-emerald-500/25 rounded-xl flex items-start gap-2.5 animate-fade-in">
               <CheckCircle2 size={16} className="text-emerald-400 shrink-0 mt-0.5" />
               <div className="text-xs text-emerald-300">
@@ -174,7 +181,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
           )}
 
           {/* ── TAB 1: SIGN IN FORM ── */}
-          {tab === 'signin' && (
+          {activeTab === 'signin' && (
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-white/5">
                 <ShieldCheck size={14} className="text-violet-400" />
@@ -193,7 +200,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
                   type="email"
                   required
                   className="input-admin"
-                  placeholder="admin@institution.edu"
+                  placeholder="you@nmims.edu"
                   value={signInEmail}
                   onChange={e => setSignInEmail(e.target.value)}
                   autoFocus
@@ -245,9 +252,10 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
                 )}
               </button>
 
+              {setupRequired ? (
               <div className="pt-2 text-center">
                 <p className="text-xs text-zinc-500">
-                  Don't have an admin account?{' '}
+                  No administrator exists yet.{' '}
                   <button
                     type="button"
                     onClick={() => {
@@ -256,21 +264,20 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
                     }}
                     className="text-violet-400 hover:text-violet-300 font-medium hover:underline transition-colors"
                   >
-                    Create an account
+                    Create the first account
                   </button>
                 </p>
               </div>
-
-              <div className="pt-3 border-t border-white/5 text-center">
-                <p className="text-[11px] text-zinc-600">
-                  Default Seed: <span className="text-zinc-500 font-mono">admin@institution.edu</span> / <span className="text-zinc-500 font-mono">Admin@123</span>
-                </p>
-              </div>
+              ) : (
+              <p className="pt-2 text-center text-xs text-zinc-500">
+                Need access? Ask a superadmin to create an administrator account for you.
+              </p>
+              )}
             </form>
           )}
 
           {/* ── TAB 2: CREATE ACCOUNT FORM ── */}
-          {tab === 'signup' && (
+          {activeTab === 'signup' && (
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="flex items-center gap-2 pb-3 border-b border-white/5">
                 <UserPlus size={14} className="text-violet-400" />
@@ -306,7 +313,7 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
                   type="email"
                   required
                   className="input-admin"
-                  placeholder="admin@institution.edu"
+                  placeholder="you@nmims.edu"
                   value={signUpEmail}
                   onChange={e => setSignUpEmail(e.target.value)}
                 />
@@ -407,7 +414,6 @@ export default function LoginPage({ initialTab = 'signin' }: LoginPageProps) {
             </form>
           )}
         </div>
-      </div>
-    </div>
+    </AuthShell>
   );
 }

@@ -144,7 +144,7 @@ export default function SetupPage() {
                     href={`${API_BASE}/downloads/AI-Monitor-Windows.zip`}
                     download="AI-Monitor-Windows.zip"
                     onClick={handleDownloadClick}
-                    className="btn-primary flex items-center justify-center gap-2 text-xs py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white shadow-lg shadow-emerald-950/30 font-semibold shrink-0"
+                    className="btn-primary flex items-center justify-center gap-2 text-xs py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-paper shadow-lg shadow-emerald-950/30 font-semibold shrink-0"
                     title="Download as ZIP (Recommended: never blocked by Edge or Chrome SmartScreen)"
                   >
                     <Download size={15} />

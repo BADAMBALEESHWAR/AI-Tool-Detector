@@ -1,77 +1,84 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Colours resolve through nmims.theme.js — gray-950 is the page, gray-900 a card,
+   `text-white` is ink and `paper` is literal white. */
 @layer base {
+  input::placeholder, textarea::placeholder { color: theme('colors.zinc.600'); }
   * {
     @apply border-white/10;
   }
   body {
     @apply bg-gray-950 text-gray-100 font-sans antialiased;
   }
+  h1, h2, h3 {
+    @apply font-display;
+  }
   ::-webkit-scrollbar {
     @apply w-1.5;
   }
   ::-webkit-scrollbar-track {
-    @apply bg-gray-900;
+    @apply bg-gray-800;
   }
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-700 rounded-full;
+    @apply bg-gray-600/50 rounded-full;
+  }
+  ::selection {
+    @apply bg-nmims-600 text-paper;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl;
+    @apply bg-gray-900 border border-gray-700 rounded-xl shadow-sm;
   }
   .glass-card-hover {
-    @apply glass-card hover:bg-white/10 hover:border-white/20 transition-all duration-200;
+    @apply glass-card hover:border-nmims-600/40 hover:shadow-md transition-all duration-200;
   }
   .btn-primary {
-    @apply bg-gradient-to-r from-brand-600 to-violet-600 hover:from-brand-500 hover:to-violet-500
-           text-white font-semibold px-6 py-2.5 rounded-xl transition-all duration-200
-           shadow-lg shadow-brand-900/30 hover:shadow-brand-700/40 hover:-translate-y-0.5
-           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none;
+    @apply bg-nmims-600 hover:bg-nmims-700 text-paper font-semibold px-6 py-2.5 rounded-md
+           uppercase tracking-wide text-sm transition-all duration-200 shadow-sm
+           disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-secondary {
-    @apply bg-white/10 hover:bg-white/15 text-white font-medium px-6 py-2.5 rounded-xl
-           border border-white/10 hover:border-white/20 transition-all duration-200
+    @apply bg-paper hover:bg-nmims-50 text-nmims-600 font-semibold px-6 py-2.5 rounded-md
+           border border-nmims-600 transition-all duration-200
            disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .input-field {
-    @apply w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white
-           placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-500/50
-           focus:border-brand-500/50 transition-all duration-200;
+    @apply w-full bg-paper border border-gray-700 rounded-md px-4 py-3 text-gray-100
+           placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-nmims-600/20
+           focus:border-nmims-600 transition-all duration-200;
   }
   .label {
-    @apply block text-sm font-medium text-gray-400 mb-1.5;
+    @apply block text-sm font-semibold text-gray-300 mb-1.5;
   }
   .badge {
-    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold;
   }
   .badge-green {
-    @apply badge bg-emerald-500/20 text-emerald-400 border border-emerald-500/30;
+    @apply badge bg-emerald-500/10 text-emerald-700 border border-emerald-500/25;
   }
   .badge-yellow {
-    @apply badge bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+    @apply badge bg-amber-500/10 text-amber-700 border border-amber-500/30;
   }
   .badge-red {
-    @apply badge bg-red-500/20 text-red-400 border border-red-500/30;
+    @apply badge bg-red-500/10 text-red-700 border border-red-500/25;
   }
   .badge-blue {
-    @apply badge bg-blue-500/20 text-blue-400 border border-blue-500/30;
+    @apply badge bg-blue-500/10 text-blue-700 border border-blue-500/25;
   }
   .badge-purple {
-    @apply badge bg-violet-500/20 text-violet-400 border border-violet-500/30;
+    @apply badge bg-nmims-600/10 text-nmims-700 border border-nmims-600/25;
   }
   .stat-card {
     @apply glass-card p-5 flex flex-col gap-1;
   }
   .page-header {
-    @apply text-2xl font-bold text-white mb-1;
+    @apply text-2xl font-bold text-gray-100 mb-1 pl-3 border-l-4 border-nmims-600;
   }
   .page-subheader {
-    @apply text-sm text-gray-400;
+    @apply text-sm text-gray-500 pl-4;
   }
 }

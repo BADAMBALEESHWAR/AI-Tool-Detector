@@ -169,7 +169,36 @@ authRouter.post('/refresh', async (req: Request, res: Response) => {
   }
 });
 
+// ── Admin Setup Status ───────────────────────────────────────────────────────
+// Lets the login page offer first-run account creation only while no admin exists.
+authRouter.get('/admin/setup-status', async (_req: Request, res: Response) => {
+  try {
+    const count = await prisma.adminUser.count();
+    res.json({ setupRequired: count === 0 });
+  } catch (err) {
+    logger.error('Admin setup-status error:', err);
+    res.status(500).json({ error: 'Failed to read setup status.' });
+  }
+});
+
+/** Returns true when the request carries a valid token for a current superadmin. */
+async function isSuperadminRequest(req: Request): Promise<boolean> {
+  const header = req.headers.authorization;
+  if (!header?.startsWith('Bearer ')) return false;
+  try {
+    const payload = jwt.verify(header.slice(7), process.env.ADMIN_JWT_SECRET as string) as { adminId?: string };
+    if (!payload.adminId) return false;
+    // Role comes from the database, not the token, so demoted admins lose access immediately.
+    const admin = await prisma.adminUser.findUnique({ where: { id: payload.adminId } });
+    return admin?.role === 'superadmin';
+  } catch {
+    return false;
+  }
+}
+
 // ── Admin Signup ─────────────────────────────────────────────────────────────
+// Open only for the very first account (which becomes superadmin). After that,
+// only a signed-in superadmin can create further admin accounts.
 authRouter.post(
   '/admin/signup',
   authLimiter,
@@ -190,6 +219,12 @@ authRouter.post(
     const { name, email, password } = req.body;
 
     try {
+      const count = await prisma.adminUser.count();
+      if (count > 0 && !(await isSuperadminRequest(req))) {
+        res.status(403).json({ error: 'Admin registration is closed. Ask a superadmin to create your account.' });
+        return;
+      }
+
       const existing = await prisma.adminUser.findUnique({ where: { email } });
       if (existing) {
         res.status(409).json({ error: 'An administrator account with this email already exists.' });
@@ -197,7 +232,6 @@ authRouter.post(
       }
 
       const passwordHash = await bcrypt.hash(password, 12);
-      const count = await prisma.adminUser.count();
       const role = count === 0 ? 'superadmin' : 'admin';
 
       const admin = await prisma.adminUser.create({

@@ -248,7 +248,7 @@ export default function LogsPage() {
 
           <button
             type="submit"
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-white transition-all cursor-pointer"
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-violet-600 hover:bg-violet-500 text-paper transition-all cursor-pointer"
           >
             Filter
           </button>

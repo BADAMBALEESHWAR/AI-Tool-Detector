@@ -152,7 +152,7 @@ export default function StudentsPage() {
       {/* Table */}
       <div className="admin-card overflow-hidden">
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-zinc-700">
+          <div className="flex items-center justify-center py-16 text-zinc-600">
             <div className="w-5 h-5 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mr-2" />
           </div>
         ) : (
@@ -196,13 +196,13 @@ export default function StudentsPage() {
                           <span className="text-xs font-mono text-zinc-400">{dev.hostname}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-zinc-700">No device</span>
+                        <span className="text-xs text-zinc-600">No device</span>
                       )}
                     </td>
                     <td className="table-cell">
                       {dev?.extensionStatus
                         ? <CheckCircle2 size={14} className="text-emerald-400" />
-                        : <XCircle size={14} className="text-zinc-700" />
+                        : <XCircle size={14} className="text-zinc-600" />
                       }
                     </td>
                     <td className="table-cell text-xs text-zinc-500">
@@ -287,7 +287,7 @@ export default function StudentsPage() {
             </div>
 
             {detailLoading ? (
-              <div className="flex items-center justify-center flex-1 text-zinc-700">
+              <div className="flex items-center justify-center flex-1 text-zinc-600">
                 <div className="w-6 h-6 border-2 border-violet-500 border-t-transparent rounded-full animate-spin mr-3" />
                 Loading...
               </div>
@@ -296,7 +296,7 @@ export default function StudentsPage() {
                 {/* Profile */}
                 <div className="admin-card p-4">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-paper font-bold text-lg">
                       {selected.name[0]}
                     </div>
                     <div>
@@ -360,7 +360,7 @@ export default function StudentsPage() {
                           <span className="text-zinc-600">{d.osType}</span>
                           {d.extensionStatus
                             ? <span title="Extension active"><CheckCircle2 size={10} className="text-emerald-400" /></span>
-                            : <span title="No extension"><XCircle size={10} className="text-zinc-700" /></span>
+                            : <span title="No extension"><XCircle size={10} className="text-zinc-600" /></span>
                           }
                         </div>
                       ))}
@@ -381,7 +381,7 @@ export default function StudentsPage() {
                           }
                           <span className="text-violet-300 font-medium flex-1 truncate">{ev.toolName}</span>
                           <span className="text-zinc-600">{ev.durationSeconds ? fmtDur(ev.durationSeconds) : '—'}</span>
-                          <span className="text-zinc-700">{format(new Date(ev.startTime), 'MMM d')}</span>
+                          <span className="text-zinc-600">{format(new Date(ev.startTime), 'MMM d')}</span>
                         </div>
                       ))}
                     </div>

@@ -110,7 +110,7 @@ function getToolColor(toolName: string): string {
   if (n.includes('gemini') || n.includes('bard')) return 'from-blue-600 to-cyan-600';
   if (n.includes('copilot')) return 'from-sky-600 to-blue-600';
   if (n.includes('perplexity')) return 'from-violet-600 to-purple-600';
-  if (n.includes('grok')) return 'from-gray-600 to-zinc-600';
+  if (n.includes('grok')) return 'from-neutral-600 to-neutral-800';
   if (n.includes('deepseek')) return 'from-indigo-600 to-blue-700';
   if (n.includes('mistral')) return 'from-rose-600 to-pink-600';
   return 'from-violet-600 to-indigo-600';
@@ -201,7 +201,8 @@ export default function NotificationsPage() {
           ts: new Date(act.startTime).getTime(),
           data: {
             ...act,
-            eventType: 'ACTIVE',
+    isUnknownTool: act.isUnknownTool ?? false,
+    eventType: 'ACTIVE',
           }
         }));
 
@@ -235,10 +236,14 @@ export default function NotificationsPage() {
           (item.data.sessionKey === k || item.data.eventId === act.eventId)
         );
         const activeItem: FeedItem = {
-          type: 'usage',
-          id: act.eventId,
-          ts: new Date(act.startTime).getTime(),
-          data: { ...act, eventType: 'ACTIVE' },
+            type: 'usage',
+    id: act.eventId,
+    ts: new Date(act.startTime).getTime(),
+    data: {
+        ...act,
+        isUnknownTool: act.isUnknownTool ?? false,
+        eventType: 'ACTIVE',
+    },
         };
         if (existingIdx !== -1) {
           copy[existingIdx] = activeItem;
@@ -253,7 +258,7 @@ export default function NotificationsPage() {
   useEffect(() => {
     if (!token) return;
 
-    const socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001', {
+    const socket = io(import.meta.env.VITE_SOCKET_URL || 'https://api.tooldetect.in', {
       auth: { token, role: 'admin' },
     });
     socketRef.current = socket;
@@ -463,7 +468,7 @@ export default function NotificationsPage() {
             onClick={() => setViewMode('stream')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               viewMode === 'stream'
-                ? 'bg-violet-600 text-white shadow-md'
+                ? 'bg-violet-600 text-paper shadow-md'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -474,14 +479,14 @@ export default function NotificationsPage() {
             onClick={() => setViewMode('tools')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               viewMode === 'tools'
-                ? 'bg-violet-600 text-white shadow-md'
+                ? 'bg-violet-600 text-paper shadow-md'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Wrench size={13} />
             By AI Tools
             {activeByTool.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[10px] font-bold">
+              <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-paper text-[10px] font-bold">
                 {activeByTool.length}
               </span>
             )}
@@ -490,14 +495,14 @@ export default function NotificationsPage() {
             onClick={() => setViewMode('students')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               viewMode === 'students'
-                ? 'bg-violet-600 text-white shadow-md'
+                ? 'bg-violet-600 text-paper shadow-md'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
             <Users size={13} />
             By Student
             {activeByStudent.length > 0 && (
-              <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-white text-[10px] font-bold">
+              <span className="px-1.5 py-0.2 rounded-full bg-red-500 text-paper text-[10px] font-bold">
                 {activeByStudent.length}
               </span>
             )}
@@ -546,7 +551,7 @@ export default function NotificationsPage() {
               onClick={() => setFilterStatus('all')}
               className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all ${
                 filterStatus === 'all'
-                  ? 'bg-violet-600 text-white shadow-lg shadow-violet-900/30'
+                  ? 'bg-violet-600 text-paper shadow-lg shadow-violet-900/30'
                   : 'bg-zinc-800/80 text-zinc-400 hover:text-zinc-200 border border-white/5'
               }`}
             >
@@ -556,7 +561,7 @@ export default function NotificationsPage() {
               onClick={() => setFilterStatus('active')}
               className={`text-xs px-3 py-1.5 rounded-lg font-medium flex items-center gap-1.5 transition-all ${
                 filterStatus === 'active'
-                  ? 'bg-red-600 text-white shadow-lg shadow-red-900/30'
+                  ? 'bg-red-600 text-paper shadow-lg shadow-red-900/30'
                   : 'bg-zinc-800/80 text-zinc-400 hover:text-red-300 border border-white/5'
               }`}
             >
@@ -609,13 +614,13 @@ export default function NotificationsPage() {
         {viewMode === 'stream' && (
           <>
             {!connected && feed.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-700">
+              <div className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-600">
                 <WifiOff size={40} className="opacity-30" />
                 <p className="text-sm">Connecting to live monitoring feed…</p>
               </div>
             )}
             {connected && filteredFeed.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-700">
+              <div className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-600">
                 <Bell size={40} className="opacity-20" />
                 <p className="text-sm">No activity matching your filters. Monitoring active…</p>
                 <div className="live-dot" />
@@ -660,7 +665,7 @@ export default function NotificationsPage() {
                   <div key={group.toolName} className="admin-card p-5 border-red-500/30 bg-red-950/10 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${getToolColor(group.toolName)} flex items-center justify-center text-white font-bold text-xl shadow-md`}>
+                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${getToolColor(group.toolName)} flex items-center justify-center text-paper font-bold text-xl shadow-md`}>
                           🤖
                         </div>
                         <div>
@@ -782,21 +787,21 @@ export default function NotificationsPage() {
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-zinc-900 border border-white/15 rounded-2xl max-w-lg w-full overflow-hidden shadow-2xl animate-fade-in">
             {/* Modal Header */}
-            <div className={`p-6 bg-gradient-to-br ${getToolColor(inspectModal.toolName)} text-white flex items-start justify-between`}>
+            <div className={`p-6 bg-gradient-to-br ${getToolColor(inspectModal.toolName)} text-paper flex items-start justify-between`}>
               <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center text-2xl shadow-md">
+                <div className="w-12 h-12 rounded-xl bg-paper/15 backdrop-blur flex items-center justify-center text-2xl shadow-md">
                   {getBrowserInfo(inspectModal).icon}
                 </div>
                 <div>
                   <h2 className="text-lg font-bold">{inspectModal.toolName}</h2>
-                  <p className="text-xs text-white/80">
+                  <p className="text-xs text-paper/85">
                     Accessed via {getBrowserInfo(inspectModal).name}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setInspectModal(null)}
-                className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-white transition-colors"
+                className="w-8 h-8 rounded-full bg-black/20 hover:bg-black/40 flex items-center justify-center text-paper transition-colors"
               >
                 <X size={16} />
               </button>
@@ -866,7 +871,7 @@ export default function NotificationsPage() {
             <div className="px-6 py-4 bg-zinc-950 border-t border-white/5 flex justify-end">
               <button
                 onClick={() => setInspectModal(null)}
-                className="px-4 py-2 bg-violet-600 hover:bg-violet-700 rounded-xl text-xs font-semibold text-white transition-all"
+                className="px-4 py-2 bg-violet-600 hover:bg-violet-700 rounded-xl text-xs font-semibold text-paper transition-all"
               >
                 Close Inspector
               </button>

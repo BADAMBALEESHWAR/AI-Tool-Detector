@@ -2,7 +2,8 @@ import { Outlet, NavLink, useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../lib/api';
-import { Cpu, Home, Download, BarChart2, User, LogOut, ShieldCheck, AlertTriangle } from 'lucide-react';
+import NmimsBrand from '../components/NmimsBrand';
+import { Home, Download, BarChart2, User, LogOut, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 const NAV_LINKS = [
   { to: '/dashboard', label: 'Home', icon: Home, end: true },
@@ -30,93 +31,99 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-950">
-      {/* Sidebar */}
-      <aside className="w-64 shrink-0 flex flex-col border-r border-white/5 bg-gray-900/50 backdrop-blur">
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5">
-          <div className="w-9 h-9 bg-gradient-to-br from-brand-600 to-violet-600 rounded-xl flex items-center justify-center shadow-lg shadow-brand-900/40">
-            <Cpu className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <p className="text-sm font-bold text-white">AI Monitor</p>
-            <p className="text-xs text-gray-500">Student Portal</p>
-          </div>
+    <div className="flex flex-col min-h-screen bg-gray-950">
+      {/* Utility strip */}
+      <div className="bg-ink text-paper/80 text-[11px]">
+        <div className="flex items-center justify-between px-6 h-8">
+          <span className="tracking-wide">Shri Vile Parle Kelavani Mandal's · Narsee Monjee Institute of Management Studies</span>
+          <span className="hidden md:inline uppercase tracking-[0.2em] font-semibold text-paper/60">Student Portal</span>
         </div>
+      </div>
 
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
-          {NAV_LINKS.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
-                  isActive
-                    ? 'bg-brand-600/20 text-brand-300 border border-brand-500/20'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
-                }`
-              }
-            >
-              <Icon size={16} />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
+      {/* Header */}
+      <header className="sticky top-0 z-20 bg-paper border-b-4 border-nmims-600 shadow-sm">
+        <div className="flex items-center justify-between gap-4 px-6 py-3">
+          <NmimsBrand subtitle="Student Portal" />
 
-        {/* Student info + logout */}
-        <div className="px-3 py-4 border-t border-white/5">
-          <div className="glass-card px-3 py-3 mb-2">
-            <p className="text-xs font-semibold text-white truncate">{student?.name}</p>
-            <p className="text-xs text-gray-500 truncate">{student?.sapId}</p>
-            <p className="text-xs text-gray-600 truncate">{student?.branch}</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 w-full px-3 py-2 text-sm text-gray-500 hover:text-red-400 rounded-xl hover:bg-red-500/10 transition-all"
-          >
-            <LogOut size={14} />
-            Sign Out
-          </button>
-        </div>
-      </aside>
-
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
-        {/* Top bar */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-8 py-4 border-b border-white/5 bg-gray-950/80 backdrop-blur">
-          {/* Monitoring status indicator */}
-          {deviceChecked && (
-            activeDevice ? (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <ShieldCheck size={12} className="text-emerald-400" />
-                <span className="text-xs text-emerald-300 font-medium">Monitoring Active</span>
-                <span className="text-xs text-emerald-600 font-mono hidden sm:inline">· {activeDevice.hostname}</span>
-              </div>
-            ) : (
-              <Link
-                to="/dashboard/setup"
-                className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-full hover:bg-amber-500/15 transition-colors"
-              >
-                <AlertTriangle size={12} className="text-amber-400" />
-                <span className="text-xs text-amber-300 font-medium">Setup Required — Install App</span>
-              </Link>
-            )
-          )}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-600 to-violet-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-brand-900/30">
+          <div className="flex items-center gap-4">
+            {/* Monitoring status indicator */}
+            {deviceChecked && (
+              activeDevice ? (
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/25 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <ShieldCheck size={12} className="text-emerald-700" />
+                  <span className="text-xs text-emerald-700 font-semibold">Monitoring Active</span>
+                  <span className="text-xs text-emerald-600 font-mono hidden lg:inline">· {activeDevice.hostname}</span>
+                </div>
+              ) : (
+                <Link
+                  to="/dashboard/setup"
+                  className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full hover:bg-amber-500/15 transition-colors"
+                >
+                  <AlertTriangle size={12} className="text-amber-700" />
+                  <span className="text-xs text-amber-700 font-semibold">Setup Required — Install App</span>
+                </Link>
+              )
+            )}
+            <div className="hidden md:block text-right">
+              <p className="text-sm font-semibold text-gray-100 truncate max-w-[200px]">{student?.name}</p>
+              <p className="text-[11px] text-gray-500 font-mono">{student?.sapId}</p>
+            </div>
+            <div className="w-10 h-10 rounded-md bg-nmims-600 flex items-center justify-center text-paper text-sm font-bold shadow-sm">
               {student?.name?.[0]?.toUpperCase() || 'S'}
             </div>
           </div>
         </div>
+      </header>
+
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar */}
+        <aside className="w-60 shrink-0 flex flex-col bg-paper border-r border-gray-700">
+          <p className="px-5 pt-5 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-gray-600">My Account</p>
+          <nav className="flex-1 px-3 pb-3 space-y-1">
+            {NAV_LINKS.map(({ to, label, icon: Icon, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={({ isActive }) =>
+                  `flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-semibold transition-all duration-150 ${
+                    isActive
+                      ? 'bg-nmims-600 text-paper shadow-sm'
+                      : 'text-gray-400 hover:text-nmims-600 hover:bg-nmims-50'
+                  }`
+                }
+              >
+                <Icon size={16} />
+                {label}
+              </NavLink>
+            ))}
+          </nav>
+
+          {/* Student info + logout */}
+          <div className="px-3 py-4 border-t border-gray-700">
+            <div className="px-3 py-3 mb-2 bg-gray-800 rounded-md border-l-4 border-nmims-600">
+              <p className="text-xs font-semibold text-gray-100 truncate">{student?.name}</p>
+              <p className="text-xs text-gray-500 truncate font-mono">{student?.sapId}</p>
+              <p className="text-xs text-gray-600 truncate">{student?.branch}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 w-full px-3 py-2 text-sm font-semibold text-gray-500 hover:text-nmims-600 rounded-md hover:bg-nmims-50 transition-all"
+            >
+              <LogOut size={14} />
+              Sign Out
+            </button>
+          </div>
+        </aside>
 
         {/* Page content */}
-        <div className="p-8">
-          <Outlet />
-        </div>
-      </main>
+        <main className="flex-1 overflow-auto">
+          <div className="p-8">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

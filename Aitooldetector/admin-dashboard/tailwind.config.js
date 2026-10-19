@@ -1,16 +1,13 @@
+import { nmimsBorderColor, nmimsColors, nmimsFonts } from './nmims.theme.js';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-      colors: {
-        admin: {
-          bg: '#09090b',
-          card: '#111113',
-          border: 'rgba(255,255,255,0.06)',
-        },
-      },
+      fontFamily: nmimsFonts,
+      colors: nmimsColors,
+      borderColor: nmimsBorderColor,
       animation: {
         'fade-in': 'fadeIn 0.3s ease-in-out',
         'slide-in': 'slideIn 0.3s ease-out',

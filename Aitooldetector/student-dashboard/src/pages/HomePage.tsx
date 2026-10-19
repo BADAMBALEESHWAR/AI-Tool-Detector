@@ -185,12 +185,12 @@ export default function HomePage() {
       <div className="grid grid-cols-3 gap-4">
         {[
           { to: '/dashboard/download', icon: Download, label: 'Download App', sub: 'Windows & macOS', color: 'from-brand-600 to-violet-600' },
-          { to: '/dashboard/download', icon: Puzzle, label: 'Browser Extension', sub: 'Chrome, Edge, Brave', color: 'from-indigo-600 to-blue-600' },
+          { to: '/dashboard/download', icon: Puzzle, label: 'Browser Extension', sub: 'Chrome, Edge, Brave', color: 'from-neutral-700 to-neutral-900' },
           { to: '/dashboard/usage', icon: BarChart2, label: 'View Usage', sub: 'Your AI history', color: 'from-violet-600 to-purple-600' },
         ].map(({ to, icon: Icon, label, sub, color }) => (
           <Link key={label} to={to} className="glass-card-hover p-5 flex flex-col gap-3">
             <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg`}>
-              <Icon className="w-5 h-5 text-white" />
+              <Icon className="w-5 h-5 text-paper" />
             </div>
             <div>
               <p className="text-sm font-semibold text-white">{label}</p>

@@ -75,7 +75,7 @@ export default function DownloadPage() {
               onClick={() => setOs(o)}
               className={`px-5 py-2 rounded-xl text-sm font-medium transition-all ${
                 os === o
-                  ? 'bg-brand-600 text-white shadow-lg shadow-brand-900/30'
+                  ? 'bg-brand-600 text-paper shadow-lg shadow-brand-900/30'
                   : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10'
               }`}
             >
@@ -98,7 +98,7 @@ export default function DownloadPage() {
                 id="download-windows-zip"
                 href={`${API_BASE}/downloads/AI-Monitor-Windows.zip`}
                 download="AI-Monitor-Windows.zip"
-                className="btn-primary flex items-center justify-center gap-2 text-xs py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-white shadow-lg shadow-emerald-950/30 font-semibold"
+                className="btn-primary flex items-center justify-center gap-2 text-xs py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 border border-emerald-400/30 text-paper shadow-lg shadow-emerald-950/30 font-semibold"
                 title="Download as ZIP archive (Recommended: never blocked by Chrome or browser filters)"
               >
                 <Download size={15} />
