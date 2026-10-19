@@ -83,6 +83,23 @@ sudo docker compose -f docker-compose.prod.yml logs -f --tail 100 backend
 sudo docker compose -f docker-compose.prod.yml restart backend
 ```
 
+## Monitoring and alerts
+
+CloudWatch alarms email the `ai-tool-detector-alerts` SNS topics (ap-south-1 and,
+for CloudFront metrics, us-east-1). Confirm the subscription emails once.
+
+| Alarm | Fires when | Automatic action |
+|---|---|---|
+| `ai-monitor-ec2-system-check` | AWS hardware/host problem (2 min) | EC2 **recovers** the instance |
+| `ai-monitor-ec2-instance-check` | API server unresponsive (3 min) | email |
+| `ai-monitor-ec2-cpu-high` | server CPU > 85 % for 10 min | email |
+| `ai-monitor-rds-storage-low` | database < 2 GB free | email |
+| `ai-monitor-rds-cpu-high` | database CPU > 85 % for 15 min | email |
+| `ai-monitor-api-5xx` | > 5 % of API requests failing for 10 min | email |
+
+Database safety: RDS keeps 7 days of automated backups; manual snapshots are taken
+before risky changes (e.g. `ai-tool-detector-db-pre-catalog-v3-2026-10-19`).
+
 ## Administrator accounts
 
 Public admin sign-up is closed. The admin login page offers **Create the first
